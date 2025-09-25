@@ -5,8 +5,11 @@ import {
   OnApplicationBootstrap,
   OnModuleDestroy,
 } from "@nestjs/common";
-import { Kafka, Producer } from "kafkajs";
-import { TokenPriceUpdateMessage } from "../types";
+import { Kafka, Message, Producer } from "kafkajs";
+import {
+  TokenPriceUpdateMessage,
+  TokenPriceUpdateMessageCreate,
+} from "../types";
 import { ConfigService } from "@nestjs/config";
 import { KafkaConfig } from "../../../types";
 
@@ -16,7 +19,6 @@ export class ProducerService
 {
   private readonly logger = new Logger(ProducerService.name);
   private readonly producer: Producer;
-
   private readonly topic: string;
 
   constructor(@Inject(ConfigService) configService: ConfigService) {
@@ -47,32 +49,49 @@ export class ProducerService
 
   private async connect(): Promise<void> {
     await this.producer.connect();
+
     this.logger.log("Connected to Kafka");
   }
 
-  async sendPriceUpdateMessage(
-    message: TokenPriceUpdateMessage
-  ): Promise<void> {
+  public async sendBatch(messages: TokenPriceUpdateMessageCreate[]) {
+    const now = new Date();
+
+    const topicMessages = messages
+      .map((message) => this.parseMessage(message, now))
+      .filter((m) => m !== null);
+
+    await this.producer.sendBatch({
+      topicMessages: [
+        {
+          topic: this.topic,
+          messages: topicMessages,
+        },
+      ],
+    });
+  }
+
+  private parseMessage(
+    createMessage: TokenPriceUpdateMessageCreate,
+    timestamp: Date
+  ): Message | null {
+    const message: TokenPriceUpdateMessage = {
+      ...createMessage,
+      timestamp,
+    };
+
     try {
-      // Validate the message with Zod schema
       TokenPriceUpdateMessage.parse(message);
 
-      const value = JSON.stringify(message);
-
-      this.producer.send({
-        topic: this.topic,
-        messages: [
-          {
-            key: message.tokenId,
-            value,
-          },
-        ],
+      return {
+        key: message.tokenId,
+        value: JSON.stringify(message),
+      };
+    } catch (error) {
+      this.logger.error(`Error parse message: ${error.message}`, {
+        message,
       });
 
-      this.logger.log(`Sent message to Kafka: ${value}`);
-      return;
-    } catch (error) {
-      this.logger.error(`Error sending message: ${error.message}`);
+      return null;
     }
   }
 }

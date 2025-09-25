@@ -16,7 +16,7 @@ export class TokenService {
     return this.tokenRepository.count();
   }
 
-  public find(): Promise<TokenData[]> {
+  public getAll(): Promise<TokenData[]> {
     return this.tokenRepository.find();
   }
 
@@ -24,7 +24,10 @@ export class TokenService {
     await this.tokenRepository.save(dataList);
   }
 
-  public async updatePrice(id: string, price: bigint) {
+  public async updatePrice(
+    id: string,
+    price: bigint
+  ): Promise<TokenData | null> {
     await this.tokenRepository.update(
       {
         id,
@@ -34,5 +37,11 @@ export class TokenService {
         lastPriceUpdate: new Date(),
       }
     );
+
+    return await this.tokenRepository.findOne({
+      where: {
+        id,
+      },
+    });
   }
 }

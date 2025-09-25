@@ -2,9 +2,10 @@ import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 
 import { MockPriceService } from "./mock-price.service";
-import { createTokenPriceUpdateMessage, ProducerService } from "../../kafka";
+import { ProducerService, TokenPriceUpdateMessageCreate } from "../../kafka";
 import { TokenService } from "../../database";
 import { TokenData } from "../../../types";
+import { UpdatePriceResponse } from "./types";
 
 @Injectable()
 export class TokenPriceUpdateService implements OnApplicationBootstrap {
@@ -17,49 +18,75 @@ export class TokenPriceUpdateService implements OnApplicationBootstrap {
   ) {}
 
   public async onApplicationBootstrap() {
-    await this.updatePrices();
+    await this.updatePricesSafe();
   }
 
   @Cron(CronExpression.EVERY_5_SECONDS)
-  public async updatePrices(): Promise<void> {
+  public async updatePricesSafe(): Promise<void> {
     try {
-      const tokens = await this.tokenService.find();
-      this.logger.log(`Updating prices for ${tokens.length} tokens...`);
-
-      await Promise.all(tokens.map((token) => this.updateTokenPrice(token)));
+      await this.updatePrices();
     } catch (error) {
       this.logger.error(`Error updating prices: ${error.message}`);
     }
   }
 
-  private async updateTokenPrice(token: TokenData): Promise<void> {
-    try {
-      const oldPrice = token.price;
-      const newPrice = await this.priceService.getRandomPriceForToken();
+  public async updatePrices(): Promise<void> {
+    const tokens = await this.tokenService.getAll();
+    this.logger.log(`Updating prices for ${tokens.length} tokens...`);
 
-      if (oldPrice === newPrice) {
-        return;
-      }
+    const responses = await Promise.all(
+      tokens.map((token) => this.updateTokenPriceSafe(token))
+    );
 
-      // Create message for Kafka using Zod helper function
-      const message = createTokenPriceUpdateMessage({
-        tokenId: token.id,
-        symbol: token.symbol || "UNKNOWN",
-        oldPrice: oldPrice.toString(),
-        newPrice: newPrice.toString(),
-        // timestamp will be set to current date by default if not provided
+    const updateMessages: TokenPriceUpdateMessageCreate[] = responses
+      .filter((response) => response != null)
+      .map((response) => {
+        const { newToken, oldPrice } = response;
+        return {
+          tokenId: newToken.id,
+          symbol: newToken.symbol || "UNKNOWN",
+          oldPrice: oldPrice.toString(),
+          newPrice: newToken.price.toString(),
+          // timestamp will be set to current date by default if not provided
+        };
       });
 
-      await this.kafkaProducer.sendPriceUpdateMessage(message);
+    await this.kafkaProducer.sendBatch(updateMessages);
+  }
 
-      await this.tokenService.updatePrice(token.id, newPrice);
-      this.logger.log(
-        `Updated price for ${token.symbol}: ${oldPrice} -> ${newPrice}`
-      );
+  private async updateTokenPriceSafe(
+    token: TokenData
+  ): Promise<UpdatePriceResponse | null> {
+    try {
+      return await this.updateTokenPrice(token);
     } catch (error) {
       this.logger.error(
         `Error updating price for token ${token.id}: ${error.message}`
       );
+
+      return null;
     }
+  }
+
+  private async updateTokenPrice(
+    token: TokenData
+  ): Promise<UpdatePriceResponse | null> {
+    const oldPrice = token.price;
+    const newPrice = await this.priceService.getRandomPriceForToken();
+
+    if (oldPrice === newPrice) {
+      return null;
+    }
+
+    const newToken = await this.tokenService.updatePrice(token.id, newPrice);
+
+    this.logger.log(
+      `Updated price for ${token.symbol}: ${oldPrice} -> ${newPrice}`
+    );
+
+    return {
+      newToken,
+      oldPrice: token.price,
+    };
   }
 }

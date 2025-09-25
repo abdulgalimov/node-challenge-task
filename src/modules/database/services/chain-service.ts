@@ -3,7 +3,7 @@ import { Repository } from "typeorm";
 import { Injectable } from "@nestjs/common";
 
 import { ChainEntity } from "../entities";
-import { ChainData } from "../../../types/chain";
+import { ChainData } from "../../../types";
 
 @Injectable()
 export class ChainService {
