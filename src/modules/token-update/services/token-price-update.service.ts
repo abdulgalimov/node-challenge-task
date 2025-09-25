@@ -86,7 +86,7 @@ export class TokenPriceUpdateService implements OnApplicationBootstrap {
     }
 
     this.logger.log(
-      `Updated price for ${token.symbol}: ${oldPrice} -> ${newPrice}`
+      `Updated price for ${token.id}: ${oldPrice} -> ${newPrice}`
     );
 
     return {
