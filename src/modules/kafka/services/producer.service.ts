@@ -1,24 +1,48 @@
-import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
-import { Kafka, Producer } from "kafkajs";
 import {
-  TokenPriceUpdateMessage,
-  tokenPriceUpdateMessageSchema,
-} from "../types";
+  Inject,
+  Injectable,
+  Logger,
+  OnApplicationBootstrap,
+  OnModuleDestroy,
+} from "@nestjs/common";
+import { Kafka, Producer } from "kafkajs";
+import { TokenPriceUpdateMessage } from "../types";
+import { ConfigService } from "@nestjs/config";
+import { KafkaConfig } from "../../../types";
 
 @Injectable()
-export class ProducerService implements OnModuleDestroy {
+export class ProducerService
+  implements OnApplicationBootstrap, OnModuleDestroy
+{
   private readonly logger = new Logger(ProducerService.name);
   private readonly producer: Producer;
-  private readonly topic: string = "token-price-updates";
 
-  constructor() {
+  private readonly topic: string;
+
+  constructor(@Inject(ConfigService) configService: ConfigService) {
+    const kafkaConfig = configService.getOrThrow<KafkaConfig>("kafka");
+    const { clientId, brokers, topicName } = kafkaConfig;
+
     const kafka = new Kafka({
-      clientId: "token-price-service",
-      brokers: ["localhost:9092"],
+      clientId,
+      brokers,
     });
 
     this.producer = kafka.producer();
-    this.connect();
+    this.topic = topicName;
+  }
+
+  public async onApplicationBootstrap() {
+    await this.connect();
+  }
+
+  public async onModuleDestroy(): Promise<void> {
+    try {
+      await this.producer.disconnect();
+      this.logger.log("Disconnected from Kafka");
+    } catch (error) {
+      this.logger.error("Error disconnecting from Kafka", error.stack);
+    }
   }
 
   private async connect(): Promise<void> {
@@ -31,7 +55,7 @@ export class ProducerService implements OnModuleDestroy {
   ): Promise<void> {
     try {
       // Validate the message with Zod schema
-      tokenPriceUpdateMessageSchema.parse(message);
+      TokenPriceUpdateMessage.parse(message);
 
       const value = JSON.stringify(message);
 
@@ -49,15 +73,6 @@ export class ProducerService implements OnModuleDestroy {
       return;
     } catch (error) {
       this.logger.error(`Error sending message: ${error.message}`);
-    }
-  }
-
-  async onModuleDestroy(): Promise<void> {
-    try {
-      await this.producer.disconnect();
-      this.logger.log("Disconnected from Kafka");
-    } catch (error) {
-      this.logger.error("Error disconnecting from Kafka", error.stack);
     }
   }
 }

@@ -1,17 +1,12 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { DatabaseModule } from "./modules/database";
-import { TokenUpdateModule } from "./modules/token-update";
-import { DebugModule } from "./modules/debug";
+import {
+  GlobalConfigModule,
+  DebugModule,
+  DatabaseModule,
+  TokenUpdateModule,
+} from "./modules";
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    DatabaseModule,
-    TokenUpdateModule,
-    DebugModule,
-  ],
+  imports: [GlobalConfigModule, DatabaseModule, TokenUpdateModule, DebugModule],
 })
 export class AppModule {}

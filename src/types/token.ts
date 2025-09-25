@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-// Zod schema for token validation
-export const tokenSchema = z.object({
+/**
+ * Zod schema for token validation
+ */
+export const TokenData = z.object({
   id: z.string().uuid().optional(), // Optional for new tokens
   address: z.instanceof(Buffer),
   symbol: z.string().nullable().optional(),
@@ -14,12 +16,6 @@ export const tokenSchema = z.object({
   priority: z.number().int().default(0),
   timestamp: z.date().default(() => new Date()),
 
-  // Denormalized chain data
-  chain_Id: z.string().uuid(),
-  chain_DeId: z.number(),
-  chain_Name: z.string(),
-  chain_IsEnabled: z.boolean().default(true),
-
   // Denormalized logo data
   logo_Id: z.string().uuid(),
   logo_TokenId: z.string().uuid().nullable().optional(),
@@ -31,17 +27,23 @@ export const tokenSchema = z.object({
   lastPriceUpdate: z.date().default(() => new Date()),
 });
 
-// Type derived from the schema
-export type TokenData = z.infer<typeof tokenSchema>;
+/**
+ * Type derived from the schema
+ */
+export type TokenData = z.infer<typeof TokenData>;
 
-// Helper function to validate token data
+/**
+ * Helper function to validate token data
+ */
 export function validateToken(data: Partial<TokenData>): TokenData {
-  return tokenSchema.parse(data);
+  return TokenData.parse(data);
 }
 
-// Helper function to validate partial token data (for updates)
+/**
+ * Helper function to validate partial token data (for updates)
+ */
 export function validatePartialToken(
   data: Partial<TokenData>
 ): Partial<TokenData> {
-  return tokenSchema.partial().parse(data);
+  return TokenData.partial().parse(data);
 }

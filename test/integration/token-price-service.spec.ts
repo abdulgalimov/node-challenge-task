@@ -172,10 +172,6 @@ describe("TokenPriceService Integration Tests", () => {
     token.isProtected = false;
     token.priority = 1;
     token.timestamp = new Date();
-    token.chain_Id = "11111111-1111-1111-1111-111111111111";
-    token.chain_DeId = 1;
-    token.chain_Name = "Test Chain";
-    token.chain_IsEnabled = true;
     token.logo_Id = "22222222-2222-2222-2222-222222222222";
     token.logo_TokenId = "33333333-3333-3333-3333-333333333333";
     token.logo_BigRelativePath = "/test.png";
@@ -186,14 +182,8 @@ describe("TokenPriceService Integration Tests", () => {
 
     await tokenRepository.save(token);
 
-    // Start price update service
-    tokenPriceUpdateService.start();
-
     // Wait for price updates to occur
     await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    // Stop the service
-    tokenPriceUpdateService.stop();
 
     // Check if token price was updated in the database
     const updatedToken = await tokenRepository.findOne({

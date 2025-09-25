@@ -24,7 +24,15 @@ export class TokenService {
     await this.tokenRepository.save(dataList);
   }
 
-  public async create(data: TokenData) {
-    await this.tokenRepository.save(data);
+  public async updatePrice(id: string, price: bigint) {
+    await this.tokenRepository.update(
+      {
+        id,
+      },
+      {
+        price,
+        lastPriceUpdate: new Date(),
+      }
+    );
   }
 }

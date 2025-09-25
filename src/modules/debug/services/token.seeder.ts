@@ -1,12 +1,16 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
-import { TokenService } from "../../database";
+import { ChainService, TokenService } from "../../database";
 import { TokenData, validateToken } from "../../../types";
+import { ChainData } from "../../../types/chain";
 
 @Injectable()
 export class TokenSeeder implements OnApplicationBootstrap {
   private readonly logger = new Logger(TokenSeeder.name);
 
-  constructor(private readonly tokenService: TokenService) {}
+  constructor(
+    private readonly chainService: ChainService,
+    private readonly tokenService: TokenService
+  ) {}
 
   public async onApplicationBootstrap() {
     console.log("Data source has been initialized");
@@ -26,6 +30,28 @@ export class TokenSeeder implements OnApplicationBootstrap {
 
     this.logger.log("Seeding initial data...");
 
+    const chainEthereum: ChainData = {
+      id: "11111111-1111-1111-1111-111111111111",
+      deId: 1,
+      name: "Ethereum",
+      isEnabled: true,
+    };
+    const chainBitcoin: ChainData = {
+      id: "22222222-2222-2222-2222-222222222222",
+      deId: 2,
+      name: "Bitcoin",
+      isEnabled: true,
+    };
+    const chainSolana: ChainData = {
+      id: "33333333-3333-3333-3333-333333333333",
+      deId: 3,
+      name: "Solana",
+      isEnabled: true,
+    };
+    const chains: ChainData[] = [chainEthereum, chainBitcoin, chainSolana];
+
+    await this.chainService.createList(chains);
+
     // Define token data and validate with Zod schema
     const tokenData: TokenData[] = [
       {
@@ -36,16 +62,11 @@ export class TokenSeeder implements OnApplicationBootstrap {
         name: "Ethereum",
         decimals: 18,
         isNative: true,
-        chainId: "11111111-1111-1111-1111-111111111111",
+        chainId: chainEthereum.id,
         isProtected: true,
         lastUpdateAuthor: "Seeder",
         priority: 1,
         timestamp: new Date(),
-
-        chain_Id: "11111111-1111-1111-1111-111111111111",
-        chain_DeId: 1,
-        chain_Name: "Ethereum",
-        chain_IsEnabled: true,
 
         logo_Id: this.generateUuid(),
         logo_TokenId: this.generateUuid(),
@@ -64,16 +85,11 @@ export class TokenSeeder implements OnApplicationBootstrap {
         name: "Bitcoin",
         decimals: 8,
         isNative: true,
-        chainId: "22222222-2222-2222-2222-222222222222",
+        chainId: chainBitcoin.id,
         isProtected: true,
         lastUpdateAuthor: "Seeder",
         priority: 2,
         timestamp: new Date(),
-
-        chain_Id: "22222222-2222-2222-2222-222222222222",
-        chain_DeId: 2,
-        chain_Name: "Bitcoin",
-        chain_IsEnabled: true,
 
         logo_Id: this.generateUuid(),
         logo_TokenId: this.generateUuid(),
@@ -92,16 +108,11 @@ export class TokenSeeder implements OnApplicationBootstrap {
         name: "Solana",
         decimals: 9,
         isNative: true,
-        chainId: "33333333-3333-3333-3333-333333333333",
+        chainId: chainSolana.id,
         isProtected: true,
         lastUpdateAuthor: "Seeder",
         priority: 3,
         timestamp: new Date(),
-
-        chain_Id: "33333333-3333-3333-3333-333333333333",
-        chain_DeId: 3,
-        chain_Name: "Solana",
-        chain_IsEnabled: true,
 
         logo_Id: this.generateUuid(),
         logo_TokenId: this.generateUuid(),
