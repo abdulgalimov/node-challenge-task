@@ -1,9 +1,8 @@
 import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
 import { MockPriceService } from "./mock-price.service";
-import { KafkaProducerService } from "../kafka/kafka-producer.service";
-import { TokenService } from "../modules/database";
-import { TokenData } from "../types";
-import { createTokenPriceUpdateMessage } from "../kafka/token-price-update-message";
+import { ProducerService, createTokenPriceUpdateMessage } from "../../kafka";
+import { TokenService } from "../../database";
+import { TokenData } from "../../../types";
 
 @Injectable()
 export class TokenPriceUpdateService implements OnModuleDestroy {
@@ -15,7 +14,7 @@ export class TokenPriceUpdateService implements OnModuleDestroy {
   constructor(
     private readonly tokenService: TokenService,
     private readonly priceService: MockPriceService,
-    private readonly kafkaProducer: KafkaProducerService
+    private readonly kafkaProducer: ProducerService
   ) {}
 
   start(): void {
@@ -47,7 +46,6 @@ export class TokenPriceUpdateService implements OnModuleDestroy {
     try {
       const tokens = await this.tokenService.find();
       this.logger.log(`Updating prices for ${tokens.length} tokens...`);
-      console.log("tokens", tokens);
 
       for (const token of tokens) {
         await this.updateTokenPrice(token);
@@ -67,8 +65,8 @@ export class TokenPriceUpdateService implements OnModuleDestroy {
         const message = createTokenPriceUpdateMessage({
           tokenId: token.id,
           symbol: token.symbol || "UNKNOWN",
-          oldPrice,
-          newPrice,
+          oldPrice: oldPrice.toString(),
+          newPrice: newPrice.toString(),
           // timestamp will be set to current date by default if not provided
         });
 

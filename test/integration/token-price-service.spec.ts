@@ -2,12 +2,12 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import { Consumer, Kafka } from "kafkajs";
-import { TokenPriceUpdateService } from "../../services/token-price-update.service";
-import { MockPriceService } from "../../services/mock-price.service";
-import { KafkaProducerService } from "../../kafka/kafka-producer.service";
+import { TokenPriceUpdateService } from "../../src/modules/token-update/services/token-price-update.service";
+import { MockPriceService } from "../../src/modules/token-update/services/mock-price.service";
+import { ProducerService } from "../../src/modules/kafka/services/producer.service";
 import { Repository } from "typeorm";
-import { TokenEntity } from "../../modules/database";
-import { TokenPriceUpdateMessage } from "../../kafka/token-price-update-message";
+import { TokenEntity } from "../../src/modules/database";
+import { TokenPriceUpdateMessage } from "../../src/modules/kafka/types/token-price-update-message";
 
 describe("TokenPriceService Integration Tests", () => {
   let postgresContainer: StartedTestContainer;
@@ -114,7 +114,7 @@ describe("TokenPriceService Integration Tests", () => {
           TokenPriceUpdateService,
           MockPriceService,
           {
-            provide: KafkaProducerService,
+            provide: ProducerService,
             useValue: {
               sendPriceUpdateMessage: jest
                 .fn()

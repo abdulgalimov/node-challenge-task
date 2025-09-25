@@ -3,11 +3,11 @@ import { Kafka, Producer } from "kafkajs";
 import {
   TokenPriceUpdateMessage,
   tokenPriceUpdateMessageSchema,
-} from "./token-price-update-message";
+} from "../types";
 
 @Injectable()
-export class KafkaProducerService implements OnModuleDestroy {
-  private readonly logger = new Logger(KafkaProducerService.name);
+export class ProducerService implements OnModuleDestroy {
+  private readonly logger = new Logger(ProducerService.name);
   private readonly producer: Producer;
   private readonly topic: string = "token-price-updates";
 

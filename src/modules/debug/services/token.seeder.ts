@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
-import { TokenService } from "../modules/database";
-import { TokenData, validateToken } from "../types";
+import { TokenService } from "../../database";
+import { TokenData, validateToken } from "../../../types";
 
 @Injectable()
 export class TokenSeeder implements OnApplicationBootstrap {
