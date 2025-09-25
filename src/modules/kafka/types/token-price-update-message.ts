@@ -18,13 +18,3 @@ export type TokenPriceUpdateMessageCreate = Omit<
 > & {
   timestamp?: Date;
 };
-
-// Helper function to create a validated message
-export function createTokenPriceUpdateMessage(
-  data: TokenPriceUpdateMessageCreate
-): TokenPriceUpdateMessage {
-  return TokenPriceUpdateMessage.parse({
-    ...data,
-    timestamp: data.timestamp || new Date(),
-  });
-}

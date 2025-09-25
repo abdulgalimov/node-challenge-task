@@ -1,13 +1,16 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
+import { getRepositoryToken } from "@nestjs/typeorm";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import { Consumer, Kafka } from "kafkajs";
 import {
-  MockPriceService,
-  TokenPriceUpdateService,
-} from "../../src/modules/token-update/services";
-import { ProducerService, TokenEntity } from "../../src/modules";
+  DatabaseModule,
+  ProducerService,
+  TokenEntity,
+  TokenUpdateModule,
+} from "../../modules";
 import { Repository } from "typeorm";
+import { ConfigModule } from "@nestjs/config";
+import { AppConfig, DbConfig, KafkaConfig } from "../../types";
 
 describe("TokenPriceService Integration Tests", () => {
   let postgresContainer: StartedTestContainer;
@@ -32,19 +35,29 @@ describe("TokenPriceService Integration Tests", () => {
       // Get available ports
       const kafkaPort = getAvailablePort();
 
+      const dbConfig: DbConfig = {
+        host: "",
+        port: 5432,
+        username: "testuser",
+        password: "testpassword",
+        database: "testdb",
+      };
+
       // Start PostgreSQL container
       postgresContainer = await new GenericContainer("postgres:15-alpine")
         .withName(`postgres-test-${testId}`)
         .withEnvironment({
-          POSTGRES_USER: "testuser",
-          POSTGRES_PASSWORD: "testpassword",
-          POSTGRES_DB: "testdb",
+          POSTGRES_USER: dbConfig.username,
+          POSTGRES_PASSWORD: dbConfig.password,
+          POSTGRES_DB: dbConfig.database,
         })
-        .withExposedPorts(5432)
+        .withExposedPorts(dbConfig.port)
         .start();
 
       const postgresHost = postgresContainer.getHost();
       const mappedPostgresPort = postgresContainer.getMappedPort(5432);
+      dbConfig.host = postgresHost;
+      dbConfig.port = mappedPostgresPort;
 
       // Start Zookeeper container (required for Kafka)
       zookeeperContainer = await new GenericContainer(
@@ -69,7 +82,7 @@ describe("TokenPriceService Integration Tests", () => {
           KAFKA_ZOOKEEPER_CONNECT: `${zookeeperContainer.getHost()}:${zookeeperContainer.getMappedPort(
             2181
           )}`,
-          KAFKA_ADVERTISED_LISTENERS: `PLAINTEXT://${kafkaContainer.getHost()}:${kafkaPort}`,
+          KAFKA_ADVERTISED_LISTENERS: `PLAINTEXT://localhost}:${kafkaPort}`,
           KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1",
           KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true",
         })
@@ -82,10 +95,16 @@ describe("TokenPriceService Integration Tests", () => {
       // Wait for Kafka to be fully ready
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
-      // Setup Kafka consumer
-      const kafka = new Kafka({
+      const kafkaConfig: KafkaConfig = {
         clientId: "test-client",
         brokers: [`${kafkaHost}:${mappedKafkaPort}`],
+        topicName: "testTopic",
+      };
+
+      // Setup Kafka consumer
+      const kafka = new Kafka({
+        clientId: kafkaConfig.clientId,
+        brokers: kafkaConfig.brokers,
       });
 
       kafkaConsumer = kafka.consumer({ groupId: "test-consumer-group" });
@@ -95,21 +114,21 @@ describe("TokenPriceService Integration Tests", () => {
       // Create NestJS test module
       moduleRef = await Test.createTestingModule({
         imports: [
-          TypeOrmModule.forRoot({
-            type: "postgres",
-            host: postgresHost,
-            port: mappedPostgresPort,
-            username: "testuser",
-            password: "testpassword",
-            database: "testdb",
-            entities: [TokenEntity],
-            synchronize: true,
+          await ConfigModule.forRoot({
+            isGlobal: true,
+            load: [
+              () => {
+                return {
+                  kafka: kafkaConfig,
+                  db: dbConfig,
+                } as AppConfig;
+              },
+            ],
           }),
-          TypeOrmModule.forFeature([TokenEntity]),
+          DatabaseModule,
+          TokenUpdateModule,
         ],
         providers: [
-          TokenPriceUpdateService,
-          MockPriceService,
           {
             provide: ProducerService,
             useValue: {
