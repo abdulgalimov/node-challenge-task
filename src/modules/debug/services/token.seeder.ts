@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ChainService, TokenService } from "../../database";
-import { TokenData, validateToken } from "../../../types";
-import { ChainData } from "../../../types/chain";
+import { ChainData, TokenData, validateToken } from "../../../types";
 
 @Injectable()
 export class TokenSeeder implements OnApplicationBootstrap {
@@ -131,8 +130,10 @@ export class TokenSeeder implements OnApplicationBootstrap {
 
       await this.tokenService.createList(validatedTokens);
       this.logger.log("Initial data seeded successfully");
-    } catch (error) {
-      this.logger.error("Failed to seed initial data", error.stack);
+    } catch (error: unknown) {
+      this.logger.error("Failed to seed initial data", {
+        error,
+      });
       throw error;
     }
   }

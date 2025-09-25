@@ -25,8 +25,10 @@ export class TokenPriceUpdateService implements OnApplicationBootstrap {
   public async updatePricesSafe(): Promise<void> {
     try {
       await this.updatePrices();
-    } catch (error) {
-      this.logger.error(`Error updating prices: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Error updating prices`, {
+        error,
+      });
     }
   }
 
@@ -59,10 +61,10 @@ export class TokenPriceUpdateService implements OnApplicationBootstrap {
   ): Promise<UpdatePriceResponse | null> {
     try {
       return await this.updateTokenPrice(token);
-    } catch (error) {
-      this.logger.error(
-        `Error updating price for token ${token.id}: ${error.message}`
-      );
+    } catch (error: unknown) {
+      this.logger.error(`Error updating price for token ${token.id}`, {
+        error,
+      });
 
       return null;
     }

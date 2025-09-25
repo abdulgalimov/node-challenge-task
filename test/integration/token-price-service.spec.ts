@@ -2,12 +2,12 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import { Consumer, Kafka } from "kafkajs";
-import { TokenPriceUpdateService } from "../../src/modules/token-update/services/token-price-update.service";
-import { MockPriceService } from "../../src/modules/token-update/services/mock-price.service";
-import { ProducerService } from "../../src/modules/kafka/services/producer.service";
+import {
+  MockPriceService,
+  TokenPriceUpdateService,
+} from "../../src/modules/token-update/services";
+import { ProducerService, TokenEntity } from "../../src/modules";
 import { Repository } from "typeorm";
-import { TokenEntity } from "../../src/modules/database";
-import { TokenPriceUpdateMessage } from "../../src/modules/kafka/types/token-price-update-message";
 
 describe("TokenPriceService Integration Tests", () => {
   let postgresContainer: StartedTestContainer;
@@ -15,13 +15,12 @@ describe("TokenPriceService Integration Tests", () => {
   let kafkaContainer: StartedTestContainer;
   let moduleRef: TestingModule;
   let tokenRepository: Repository<TokenEntity>;
-  let tokenPriceUpdateService: TokenPriceUpdateService;
   let kafkaConsumer: Consumer;
 
   const kafkaTopic = "token-price-updates";
   const testId = Math.random().toString(36).substring(7);
 
-  const getAvailablePort = async (): Promise<number> => {
+  const getAvailablePort = (): number => {
     // Use a random port between 10000 and 65535
     return Math.floor(Math.random() * 55535) + 10000;
   };
@@ -31,9 +30,7 @@ describe("TokenPriceService Integration Tests", () => {
 
     try {
       // Get available ports
-      const zookeeperPort = await getAvailablePort();
-      const kafkaPort = await getAvailablePort();
-      const postgresPort = await getAvailablePort();
+      const kafkaPort = getAvailablePort();
 
       // Start PostgreSQL container
       postgresContainer = await new GenericContainer("postgres:15-alpine")
@@ -118,9 +115,7 @@ describe("TokenPriceService Integration Tests", () => {
             useValue: {
               sendPriceUpdateMessage: jest
                 .fn()
-                .mockImplementation((message: TokenPriceUpdateMessage) =>
-                  Promise.resolve()
-                ),
+                .mockImplementation(() => Promise.resolve()),
             },
           },
         ],
@@ -128,9 +123,6 @@ describe("TokenPriceService Integration Tests", () => {
 
       tokenRepository = moduleRef.get<Repository<TokenEntity>>(
         getRepositoryToken(TokenEntity)
-      );
-      tokenPriceUpdateService = moduleRef.get<TokenPriceUpdateService>(
-        TokenPriceUpdateService
       );
     } catch (error) {
       console.error("Error during test setup:", error);

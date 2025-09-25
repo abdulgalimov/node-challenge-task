@@ -42,8 +42,10 @@ export class ProducerService
     try {
       await this.producer.disconnect();
       this.logger.log("Disconnected from Kafka");
-    } catch (error) {
-      this.logger.error("Error disconnecting from Kafka", error.stack);
+    } catch (error: unknown) {
+      this.logger.error("Error disconnecting from Kafka", {
+        error,
+      });
     }
   }
 
@@ -86,9 +88,10 @@ export class ProducerService
         key: message.tokenId,
         value: JSON.stringify(message),
       };
-    } catch (error) {
-      this.logger.error(`Error parse message: ${error.message}`, {
+    } catch (error: unknown) {
+      this.logger.error(`Error parse message`, {
         message,
+        error,
       });
 
       return null;
