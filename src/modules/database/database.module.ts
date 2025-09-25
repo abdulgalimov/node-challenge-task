@@ -5,6 +5,10 @@ import { ChainService, TokenService } from "./services";
 import { ConfigService } from "@nestjs/config";
 import { DbConfig } from "../../types";
 
+const entities = [TokenEntity, ChainEntity];
+
+const services = [TokenService, ChainService];
+
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -20,17 +24,17 @@ import { DbConfig } from "../../types";
           username,
           password,
           database,
-          entities: [TokenEntity, ChainEntity],
+          entities,
           migrations: [__dirname + "/migrations/*.{js,ts}"],
           migrationsRun: true, // Run migrations automatically
           synchronize: false, // Disabled when using migrations
         };
       },
     }),
-    TypeOrmModule.forFeature([TokenEntity, ChainEntity]),
+    TypeOrmModule.forFeature(entities),
   ],
-  providers: [TokenService, ChainService],
-  exports: [TokenService, ChainService],
+  providers: [...services],
+  exports: [...services],
 })
 @Global()
 export class DatabaseModule {}
