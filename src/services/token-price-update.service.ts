@@ -1,10 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Token } from '../models/token.entity';
-import { MockPriceService } from './mock-price.service';
-import { KafkaProducerService } from '../kafka/kafka-producer.service';
-import { createTokenPriceUpdateMessage } from '../models/token-price-update-message';
+import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
+import { MockPriceService } from "./mock-price.service";
+import { KafkaProducerService } from "../kafka/kafka-producer.service";
+import { TokenService } from "../modules/database";
+import { TokenData } from "../types";
+import { createTokenPriceUpdateMessage } from "../kafka/token-price-update-message";
 
 @Injectable()
 export class TokenPriceUpdateService implements OnModuleDestroy {
@@ -14,89 +13,92 @@ export class TokenPriceUpdateService implements OnModuleDestroy {
   private isRunning: boolean = false;
 
   constructor(
-    @InjectRepository(Token)
-    private readonly tokenRepository: Repository<Token>,
+    private readonly tokenService: TokenService,
     private readonly priceService: MockPriceService,
-    private readonly kafkaProducer: KafkaProducerService,
+    private readonly kafkaProducer: KafkaProducerService
   ) {}
 
   start(): void {
     if (this.isRunning) {
-      this.logger.warn('Price update service is already running');
+      this.logger.warn("Price update service is already running");
       return;
     }
 
     this.isRunning = true;
-    this.logger.log(`Starting price update service (interval: ${this.updateIntervalSeconds} seconds)...`);
-        
-    this.timer = setInterval(      
-      async () => {
-        try {
-          await this.updatePrices();
-        } catch (error) {
-          this.logger.error(`Error in price update interval: ${error.message}`);
-        }
-      },
-      this.updateIntervalSeconds * 1000,
+    this.logger.log(
+      `Starting price update service (interval: ${this.updateIntervalSeconds} seconds)...`
     );
 
+    this.timer = setInterval(async () => {
+      try {
+        await this.updatePrices();
+      } catch (error) {
+        this.logger.error(`Error in price update interval: ${error.message}`);
+      }
+    }, this.updateIntervalSeconds * 1000);
+
     // Trigger an initial update immediately
-    this.updatePrices().catch(error => {
+    this.updatePrices().catch((error) => {
       this.logger.error(`Error in initial price update: ${error.message}`);
     });
   }
 
   private async updatePrices(): Promise<void> {
     try {
-      const tokens = await this.tokenRepository.find();
+      const tokens = await this.tokenService.find();
       this.logger.log(`Updating prices for ${tokens.length} tokens...`);
-      
+      console.log("tokens", tokens);
+
       for (const token of tokens) {
         await this.updateTokenPrice(token);
       }
     } catch (error) {
-      this.logger.error(`Error updating prices: ${error.message}`);      
+      this.logger.error(`Error updating prices: ${error.message}`);
     }
   }
 
-  private async updateTokenPrice(token: Token): Promise<void> {
+  private async updateTokenPrice(token: TokenData): Promise<void> {
     try {
       const oldPrice = token.price;
-      const newPrice = await this.priceService.getRandomPriceForToken(token);
-      
+      const newPrice = await this.priceService.getRandomPriceForToken();
+
       if (oldPrice !== newPrice) {
         // Create message for Kafka using Zod helper function
         const message = createTokenPriceUpdateMessage({
           tokenId: token.id,
-          symbol: token.symbol || 'UNKNOWN',
+          symbol: token.symbol || "UNKNOWN",
           oldPrice,
           newPrice,
           // timestamp will be set to current date by default if not provided
         });
-        
+
         await this.kafkaProducer.sendPriceUpdateMessage(message);
-        
+
         // Update token in database
         token.price = newPrice;
         token.lastPriceUpdate = new Date();
-        
-        await this.tokenRepository.save(token);
-        this.logger.log(`Updated price for ${token.symbol}: ${oldPrice} -> ${newPrice}`);
+
+        await this.tokenService.create(token);
+        this.logger.log(
+          `Updated price for ${token.symbol}: ${oldPrice} -> ${newPrice}`
+        );
       }
     } catch (error) {
-      this.logger.error(`Error updating price for token ${token.id}: ${error.message}`);      
+      this.logger.error(
+        `Error updating price for token ${token.id}: ${error.message}`
+      );
     }
   }
 
   stop(): void {
     if (!this.isRunning) {
-      this.logger.warn('Price update service is not running');
+      this.logger.warn("Price update service is not running");
       return;
     }
 
     clearInterval(this.timer);
     this.isRunning = false;
-    this.logger.log('Price update service stopped');
+    this.logger.log("Price update service stopped");
   }
 
   onModuleDestroy(): void {
