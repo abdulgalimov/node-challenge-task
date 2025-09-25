@@ -1,17 +1,17 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { ChainData } from "../../../types/chain";
+import { ChainData } from "../../../types";
 
 @Entity("chains")
 export class ChainEntity implements ChainData {
   @PrimaryGeneratedColumn("uuid")
-  id: string;
+  id!: string;
 
   @Column({ name: "defi_id", type: "decimal" })
-  deId: number;
+  defiId!: number;
 
   @Column({ name: "name" })
-  name: string;
+  name!: string;
 
   @Column({ name: "is_enabled", default: true })
-  isEnabled: boolean;
+  isEnabled!: boolean;
 }

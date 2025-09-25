@@ -81,6 +81,9 @@ export class TokenPriceUpdateService implements OnApplicationBootstrap {
     }
 
     const newToken = await this.tokenService.updatePrice(token.id, newPrice);
+    if (!newToken) {
+      return null;
+    }
 
     this.logger.log(
       `Updated price for ${token.symbol}: ${oldPrice} -> ${newPrice}`

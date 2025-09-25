@@ -5,7 +5,7 @@ import { z } from "zod";
  */
 export const ChainData = z.object({
   id: z.string().uuid(),
-  deId: z.number(),
+  defiId: z.number(),
   name: z.string(),
   isEnabled: z.boolean().default(true),
 });

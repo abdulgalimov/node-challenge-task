@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ChainService, TokenService } from "../../database";
-import { ChainData, TokenData, validateToken } from "../../../types";
+import { ChainData, TokenCreateData } from "../../../types";
 
 @Injectable()
 export class TokenSeeder implements OnApplicationBootstrap {
@@ -31,19 +31,19 @@ export class TokenSeeder implements OnApplicationBootstrap {
 
     const chainEthereum: ChainData = {
       id: "11111111-1111-1111-1111-111111111111",
-      deId: 1,
+      defiId: 1,
       name: "Ethereum",
       isEnabled: true,
     };
     const chainBitcoin: ChainData = {
       id: "22222222-2222-2222-2222-222222222222",
-      deId: 2,
+      defiId: 2,
       name: "Bitcoin",
       isEnabled: true,
     };
     const chainSolana: ChainData = {
       id: "33333333-3333-3333-3333-333333333333",
-      deId: 3,
+      defiId: 3,
       name: "Solana",
       isEnabled: true,
     };
@@ -52,7 +52,7 @@ export class TokenSeeder implements OnApplicationBootstrap {
     await this.chainService.createList(chains);
 
     // Define token data and validate with Zod schema
-    const tokenData: TokenData[] = [
+    const tokenData: TokenCreateData[] = [
       {
         address: Buffer.from([
           0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
@@ -126,7 +126,9 @@ export class TokenSeeder implements OnApplicationBootstrap {
 
     try {
       // Validate each token with Zod schema before saving
-      const validatedTokens = tokenData.map((data) => validateToken(data));
+      const validatedTokens = tokenData.map((data) =>
+        TokenCreateData.parse(data)
+      );
 
       await this.tokenService.createList(validatedTokens);
       this.logger.log("Initial data seeded successfully");

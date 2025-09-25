@@ -3,7 +3,7 @@ import { Repository } from "typeorm";
 import { Injectable } from "@nestjs/common";
 
 import { TokenEntity } from "../entities";
-import { TokenData } from "../../../types";
+import { TokenCreateData, TokenData } from "../../../types";
 
 @Injectable()
 export class TokenService {
@@ -20,7 +20,7 @@ export class TokenService {
     return this.tokenRepository.find();
   }
 
-  public async createList(dataList: TokenData[]) {
+  public async createList(dataList: TokenCreateData[]) {
     await this.tokenRepository.save(dataList);
   }
 

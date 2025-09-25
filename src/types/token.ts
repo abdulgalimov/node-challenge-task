@@ -4,7 +4,7 @@ import { z } from "zod";
  * Zod schema for token validation
  */
 export const TokenData = z.object({
-  id: z.string().uuid().optional(), // Optional for new tokens
+  id: z.string().uuid(),
   address: z.instanceof(Buffer),
   symbol: z.string().nullable().optional(),
   name: z.string().nullable().optional(),
@@ -32,18 +32,6 @@ export const TokenData = z.object({
  */
 export type TokenData = z.infer<typeof TokenData>;
 
-/**
- * Helper function to validate token data
- */
-export function validateToken(data: Partial<TokenData>): TokenData {
-  return TokenData.parse(data);
-}
+export const TokenCreateData = TokenData.omit({ id: true });
 
-/**
- * Helper function to validate partial token data (for updates)
- */
-export function validatePartialToken(
-  data: Partial<TokenData>
-): Partial<TokenData> {
-  return TokenData.partial().parse(data);
-}
+export type TokenCreateData = z.infer<typeof TokenCreateData>;

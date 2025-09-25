@@ -182,6 +182,11 @@ describe("TokenPriceService Integration Tests", () => {
       where: { id: token.id },
     });
     expect(updatedToken).toBeDefined();
+    expect(updatedToken).not.toBeNull();
+    if (!updatedToken) {
+      return;
+    }
+
     expect(updatedToken.price).not.toEqual(100);
 
     // Note: In a real test, we would also check for Kafka messages,
