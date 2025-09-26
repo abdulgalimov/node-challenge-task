@@ -40,6 +40,7 @@
     "@nestjs/schedule": "^6.0.1",
     "@nestjs/typeorm": "^10.0.0",
     "kafkajs": "^2.2.4",
+    "nestjs-graceful-shutdown": "^1.0.3",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.16",

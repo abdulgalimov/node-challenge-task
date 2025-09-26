@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  OnApplicationBootstrap,
+  OnApplicationShutdown,
+} from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 
 import { MockPriceService } from "./mock-price.service";
@@ -6,10 +11,15 @@ import { ProducerService, TokenPriceUpdateMessageCreate } from "../../kafka";
 import { TokenService } from "../../database";
 import { TokenData } from "../../../types";
 import { UpdatePriceResponse } from "./types";
+import { Task } from "../../../utils";
 
 @Injectable()
-export class TokenPriceUpdateService implements OnApplicationBootstrap {
+export class TokenPriceUpdateService
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   private readonly logger = new Logger(TokenPriceUpdateService.name);
+
+  private activeTask: Task | null = null;
 
   constructor(
     private readonly tokenService: TokenService,
@@ -21,14 +31,29 @@ export class TokenPriceUpdateService implements OnApplicationBootstrap {
     await this.updatePricesSafe();
   }
 
+  public async onApplicationShutdown() {
+    if (this.activeTask) {
+      await this.activeTask.readyPromise;
+    }
+  }
+
   @Cron(CronExpression.EVERY_5_SECONDS)
   public async updatePricesSafe(): Promise<void> {
+    if (this.activeTask !== null) {
+      return;
+    }
+
+    this.activeTask = new Task();
+
     try {
       await this.updatePrices();
     } catch (error: unknown) {
       this.logger.error(`Error updating prices`, {
         error,
       });
+    } finally {
+      this.activeTask.resolve();
+      this.activeTask = null;
     }
   }
 

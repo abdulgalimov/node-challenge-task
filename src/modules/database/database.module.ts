@@ -1,9 +1,10 @@
-import { Global, Module } from "@nestjs/common";
+import { Global, Module, OnApplicationShutdown } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ChainEntity, TokenEntity } from "./entities";
 import { ChainService, TokenService } from "./services";
 import { ConfigService } from "@nestjs/config";
 import { DbConfig } from "../../types";
+import { DataSource } from "typeorm";
 
 const entities = [TokenEntity, ChainEntity];
 
@@ -37,4 +38,12 @@ const services = [TokenService, ChainService];
   exports: [...services],
 })
 @Global()
-export class DatabaseModule {}
+export class DatabaseModule implements OnApplicationShutdown {
+  constructor(private dataSource: DataSource) {} // Inject DataSource
+
+  async onApplicationShutdown() {
+    if (this.dataSource.isInitialized) {
+      await this.dataSource.destroy();
+    }
+  }
+}

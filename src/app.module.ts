@@ -5,8 +5,17 @@ import {
   DatabaseModule,
   TokenUpdateModule,
 } from "./modules";
+import { GracefulShutdownModule } from "nestjs-graceful-shutdown";
 
 @Module({
-  imports: [GlobalConfigModule, DatabaseModule, TokenUpdateModule, DebugModule],
+  imports: [
+    GracefulShutdownModule.forRoot({
+      keepNodeProcessAlive: true,
+    }),
+    GlobalConfigModule,
+    DatabaseModule,
+    TokenUpdateModule,
+    DebugModule,
+  ],
 })
 export class AppModule {}
