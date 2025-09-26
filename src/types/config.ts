@@ -1,26 +1,23 @@
-import { z } from "zod";
+import { Static, Type } from "@sinclair/typebox";
 
-export const KafkaConfig = z.object({
-  clientId: z.string(),
-  brokers: z.array(z.string()),
-  topicName: z.string(),
+export const KafkaConfig = Type.Object({
+  clientId: Type.String(),
+  brokers: Type.Array(Type.String()),
+  topicName: Type.String(),
 });
 
-export type KafkaConfig = z.infer<typeof KafkaConfig>;
+export type KafkaConfig = Static<typeof KafkaConfig>;
 
-export const DbConfig = z.object({
-  host: z.string(),
-  port: z.number(),
-  username: z.string(),
-  password: z.string(),
-  database: z.string(),
+export const DbConfig = Type.Object({
+  connectionUrl: Type.String(),
 });
 
-export type DbConfig = z.infer<typeof DbConfig>;
+export type DbConfig = Static<typeof DbConfig>;
 
-export const AppConfig = z.object({
+export const AppConfig = Type.Object({
+  port: Type.Number(),
   kafka: KafkaConfig,
   db: DbConfig,
 });
 
-export type AppConfig = z.infer<typeof AppConfig>;
+export type AppConfig = Static<typeof AppConfig>;

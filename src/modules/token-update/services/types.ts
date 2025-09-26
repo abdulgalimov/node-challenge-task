@@ -1,6 +1,6 @@
-import { TokenData } from "../../../types";
+import { Token } from "../../../types";
 
 export type UpdatePriceResponse = {
-  newToken: TokenData;
+  newToken: Token;
   oldPrice: bigint;
 };

@@ -1,23 +1,18 @@
-import { z } from "zod";
+import { Static, Type } from "@sinclair/typebox";
 
-/**
- * Zod schema for chain validation
- */
-export const ChainData = z.object({
-  id: z.string().uuid(),
-  defiId: z.number(),
-  name: z.string(),
-  isEnabled: z.boolean().default(true),
+export const ChainNames = {
+  Ethereum: "Ethereum",
+  Bitcoin: "Bitcoin",
+  Solana: "Solana",
+} as const;
+
+export type ChainNames = (typeof ChainNames)[keyof typeof ChainNames];
+
+export const Chain = Type.Object({
+  id: Type.String(),
+  deId: Type.Number(),
+  name: Type.Enum(ChainNames),
+  isEnabled: Type.Boolean(),
 });
 
-/**
- * Type derived from the schema
- */
-export type ChainData = z.infer<typeof ChainData>;
-
-/**
- * Helper function to validate chain data
- */
-export function validateChain(data: Partial<ChainData>): ChainData {
-  return ChainData.parse(data);
-}
+export type Chain = Static<typeof Chain>;

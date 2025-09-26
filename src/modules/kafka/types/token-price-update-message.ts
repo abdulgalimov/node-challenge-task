@@ -1,16 +1,16 @@
-import { z } from "zod";
+import { Static, Type } from "@sinclair/typebox";
 
 // Zod schema for token price update message
-export const TokenPriceUpdateMessage = z.object({
-  tokenId: z.string().uuid(),
-  symbol: z.string().min(1),
-  oldPrice: z.string(),
-  newPrice: z.string(),
-  timestamp: z.date(),
+export const TokenPriceUpdateMessage = Type.Object({
+  tokenId: Type.String(),
+  symbol: Type.String(),
+  oldPrice: Type.String(),
+  newPrice: Type.String(),
+  timestamp: Type.Date(),
 });
 
 // Type derived from the schema
-export type TokenPriceUpdateMessage = z.infer<typeof TokenPriceUpdateMessage>;
+export type TokenPriceUpdateMessage = Static<typeof TokenPriceUpdateMessage>;
 
 export type TokenPriceUpdateMessageCreate = Omit<
   TokenPriceUpdateMessage,

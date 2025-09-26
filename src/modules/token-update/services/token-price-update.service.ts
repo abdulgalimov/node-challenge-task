@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Logger,
   OnApplicationBootstrap,
   OnApplicationShutdown,
 } from "@nestjs/common";
@@ -8,16 +7,16 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 
 import { MockPriceService } from "./mock-price.service";
 import { ProducerService, TokenPriceUpdateMessageCreate } from "../../kafka";
-import { TokenService } from "../../database";
-import { TokenData } from "../../../types";
+import { TokenService } from "../../db";
+import { Token } from "../../../types";
 import { UpdatePriceResponse } from "./types";
-import { Task } from "../../../utils";
+import { CommonLogger, Task } from "../../../utils";
 
 @Injectable()
 export class TokenPriceUpdateService
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
-  private readonly logger = new Logger(TokenPriceUpdateService.name);
+  private readonly logger = new CommonLogger(TokenPriceUpdateService.name);
 
   private activeTask: Task | null = null;
 
@@ -82,7 +81,7 @@ export class TokenPriceUpdateService
   }
 
   private async updateTokenPriceSafe(
-    token: TokenData
+    token: Token
   ): Promise<UpdatePriceResponse | null> {
     try {
       return await this.updateTokenPrice(token);
@@ -96,7 +95,7 @@ export class TokenPriceUpdateService
   }
 
   private async updateTokenPrice(
-    token: TokenData
+    token: Token
   ): Promise<UpdatePriceResponse | null> {
     const oldPrice = token.price;
     const newPrice = await this.priceService.getRandomPriceForToken();

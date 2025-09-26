@@ -1,10 +1,5 @@
 import { Module } from "@nestjs/common";
-import {
-  GlobalConfigModule,
-  DebugModule,
-  DatabaseModule,
-  TokenUpdateModule,
-} from "./modules";
+import { GlobalConfigModule, TokenUpdateModule, DbModule } from "./modules";
 import { GracefulShutdownModule } from "nestjs-graceful-shutdown";
 
 @Module({
@@ -13,9 +8,8 @@ import { GracefulShutdownModule } from "nestjs-graceful-shutdown";
       keepNodeProcessAlive: true,
     }),
     GlobalConfigModule,
-    DatabaseModule,
+    DbModule,
     TokenUpdateModule,
-    DebugModule,
   ],
 })
 export class AppModule {}

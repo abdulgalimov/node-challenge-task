@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { AppConfig, DbConfig, KafkaConfig } from "../../types";
+import { Value } from "@sinclair/typebox/value";
 
 export function loadKafkaConfig(): KafkaConfig {
-  return KafkaConfig.parse({
+  return Value.Parse(KafkaConfig, {
     clientId: process.env.KAFKA_CLIENT_ID!,
     brokers: process.env.KAFKA_BROKERS
       ? process.env.KAFKA_BROKERS.split(",")
@@ -12,17 +13,14 @@ export function loadKafkaConfig(): KafkaConfig {
 }
 
 export function loadDbConfig(): DbConfig {
-  return DbConfig.parse({
-    host: process.env.DB_HOST!,
-    port: parseInt(process.env.DB_PORT!, 10),
-    username: process.env.DB_USERNAME!,
-    password: process.env.DB_PASSWORD!,
-    database: process.env.DB_DATABASE!,
+  return Value.Parse(DbConfig, {
+    connectionUrl: process.env.DATABASE_URL!,
   } satisfies DbConfig);
 }
 
 export function loadConfig(): AppConfig {
-  return AppConfig.parse({
+  return Value.Parse(AppConfig, {
+    port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
     kafka: loadKafkaConfig(),
     db: loadDbConfig(),
   } satisfies AppConfig);

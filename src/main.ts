@@ -1,22 +1,31 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { Logger } from "@nestjs/common";
 import { setupGracefulShutdown } from "nestjs-graceful-shutdown";
+import { CommonLogger } from "./utils";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
-  const logger = new Logger("Main");
+  const logger = new CommonLogger("bootstrap");
   logger.log("Starting Token Price Service...");
 
   try {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+      logger,
+    });
+    const configService = app.get(ConfigService);
+
+    const port = configService.getOrThrow<number>("port");
 
     setupGracefulShutdown({ app });
 
-    await app.listen(3000);
-    logger.log("Service is running on port 3000");
+    throw new Error("test");
+
+    await app.listen(port);
+
+    logger.log(`Service is running on port ${port}`);
   } catch (error: unknown) {
     // Bug: Not handling exceptions properly
-    logger.error(`Error`, {
+    logger.error(`bootstrap error`, {
       error,
     });
   }

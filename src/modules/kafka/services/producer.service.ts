@@ -1,7 +1,6 @@
 import {
   Inject,
   Injectable,
-  Logger,
   OnApplicationBootstrap,
   OnModuleDestroy,
 } from "@nestjs/common";
@@ -12,12 +11,13 @@ import {
 } from "../types";
 import { ConfigService } from "@nestjs/config";
 import { KafkaConfig } from "../../../types";
+import { CommonLogger } from "../../../utils";
 
 @Injectable()
 export class ProducerService
   implements OnApplicationBootstrap, OnModuleDestroy
 {
-  private readonly logger = new Logger(ProducerService.name);
+  private readonly logger = new CommonLogger(ProducerService.name);
   private readonly producer: Producer;
   private readonly topic: string;
 
