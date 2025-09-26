@@ -1,7 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { setupGracefulShutdown } from "nestjs-graceful-shutdown";
-import { CommonLogger } from "./utils";
+import { CommonLogger, createSwagger } from "./utils";
 import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
@@ -14,11 +14,11 @@ async function bootstrap() {
     });
     const configService = app.get(ConfigService);
 
+    createSwagger(app);
+
     const port = configService.getOrThrow<number>("port");
 
     setupGracefulShutdown({ app });
-
-    throw new Error("test");
 
     await app.listen(port);
 

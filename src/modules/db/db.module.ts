@@ -3,7 +3,12 @@ import { ConfigService } from "@nestjs/config";
 
 import { DB_PROVIDE } from "./constants";
 import { DbConfig } from "../../types";
-import { ChainService, LogoService, TokenService } from "./services";
+import {
+  ChainService,
+  DbHealthService,
+  LogoService,
+  TokenService,
+} from "./services";
 import { createDbClient } from "./create-client";
 
 @Module({
@@ -20,8 +25,9 @@ import { createDbClient } from "./create-client";
     TokenService,
     ChainService,
     LogoService,
+    DbHealthService,
   ],
-  exports: [TokenService, ChainService, LogoService],
+  exports: [TokenService, ChainService, LogoService, DbHealthService],
 })
 @Global()
 export class DbModule {}

@@ -21,6 +21,8 @@ export class ProducerService
   private readonly producer: Producer;
   private readonly topic: string;
 
+  private isConnected = false;
+
   constructor(@Inject(ConfigService) configService: ConfigService) {
     const kafkaConfig = configService.getOrThrow<KafkaConfig>("kafka");
     const { clientId, brokers, topicName } = kafkaConfig;
@@ -40,7 +42,10 @@ export class ProducerService
 
   public async onModuleDestroy(): Promise<void> {
     try {
+      this.isConnected = false;
+
       await this.producer.disconnect();
+
       this.logger.log("Disconnected from Kafka");
     } catch (error: unknown) {
       this.logger.error("Error disconnecting from Kafka", {
@@ -52,7 +57,13 @@ export class ProducerService
   private async connect(): Promise<void> {
     await this.producer.connect();
 
+    this.isConnected = true;
+
     this.logger.log("Connected to Kafka");
+  }
+
+  public isReady() {
+    return this.isConnected;
   }
 
   public async sendBatch(messages: TokenPriceUpdateMessageCreate[]) {

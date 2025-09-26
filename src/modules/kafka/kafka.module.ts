@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Global, Module } from "@nestjs/common";
 import { ProducerService } from "./services";
 
 @Module({
@@ -6,4 +6,5 @@ import { ProducerService } from "./services";
   providers: [ProducerService],
   exports: [ProducerService],
 })
+@Global()
 export class KafkaModule {}
