@@ -2,7 +2,7 @@ import * as winston from "winston";
 import type * as Transport from "winston-transport";
 import LokiTransport from "winston-loki";
 
-import { loadLogConfig } from "../modules/config";
+import { loadLogConfig } from "../modules";
 import { JSONBigIntStringify } from "./json-bigint";
 
 const logConfig = loadLogConfig();
@@ -16,7 +16,7 @@ function createLokiTransport() {
 
   return new LokiTransport({
     host: lokiUrl,
-    labels: { app: "infobot" },
+    labels: { app: "token-price" },
     json: true,
     interval: 5,
     batching: true,

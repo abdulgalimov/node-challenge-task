@@ -17,6 +17,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app_net
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
@@ -57,6 +59,7 @@ services:
       - '4318:4318' # OTLP HTTP
     volumes:
       - ./docker/grafana/grafana-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/grafana-dashboards.yaml
+      - ./docker/grafana/grafana-datasources.yaml:/otel-lgtm/grafana/conf/provisioning/datasources/grafana-datasources.yaml
       - ./docker/grafana/dashboards:/otel-lgtm/grafana-dashboards
       - ./docker/grafana/defaults.ini:/otel-lgtm/grafana/conf/defaults.ini
     networks:

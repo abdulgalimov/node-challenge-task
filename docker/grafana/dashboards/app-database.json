@@ -24,8 +24,8 @@
   "panels": [
     {
       "datasource": {
-        "type": "postgres",
-        "uid": "app_postgres"
+        "type": "grafana-postgresql-datasource",
+        "uid": "postgres"
       },
       "fieldConfig": {
         "defaults": {
@@ -38,7 +38,9 @@
               "tooltip": false,
               "viz": false
             }
-          }
+          },
+          "fieldMinMax": false,
+          "mappings": []
         },
         "overrides": []
       },
@@ -51,39 +53,145 @@
       "id": 1,
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "values": ["value"]
+          "values": [
+            "value"
+          ]
         },
         "pieType": "pie",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
-          "values": true
+          "values": false
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.4.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "eec2y4nv05q80e"
+            "uid": "postgres"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT count(*) as value from tokens",
+          "rawSql": "SELECT COUNT(id) AS \"wait\" FROM tokens WHERE wait_price_update = true LIMIT 50 ",
           "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "alias": "\"wait\"",
+                "name": "COUNT",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [],
+            "limit": 50,
+            "whereJsonTree": {
+              "children1": [
+                {
+                  "id": "aa9a9b99-cdef-4012-b456-71998b398a58",
+                  "properties": {
+                    "field": "wait_price_update",
+                    "fieldSrc": "field",
+                    "operator": "equal",
+                    "value": [
+                      true
+                    ],
+                    "valueError": [
+                      null
+                    ],
+                    "valueSrc": [
+                      "value"
+                    ],
+                    "valueType": [
+                      "boolean"
+                    ]
+                  },
+                  "type": "rule"
+                }
+              ],
+              "id": "9ba98888-0123-4456-b89a-b1998b377b6a",
+              "type": "group"
+            },
+            "whereString": "wait_price_update = true"
+          },
+          "table": "tokens"
+        },
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "bezc8ui0jgr28f"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "hide": false,
+          "rawSql": "SELECT COUNT(id) AS \"complete\" FROM tokens WHERE wait_price_update = false LIMIT 50 ",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "alias": "\"complete\"",
+                "name": "COUNT",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [],
+            "limit": 50,
+            "whereJsonTree": {
+              "children1": [
+                {
+                  "id": "aa9a9b99-cdef-4012-b456-71998b398a58",
+                  "properties": {
+                    "field": "wait_price_update",
+                    "fieldSrc": "field",
+                    "operator": "equal",
+                    "value": [
+                      false
+                    ],
+                    "valueError": [
+                      null
+                    ],
+                    "valueSrc": [
+                      "value"
+                    ],
+                    "valueType": [
+                      "boolean"
+                    ]
+                  },
+                  "type": "rule"
+                }
+              ],
+              "id": "9ba98888-0123-4456-b89a-b1998b377b6a",
+              "type": "group"
+            },
+            "whereString": "wait_price_update = false"
+          },
           "table": "tokens"
         }
       ],
-      "title": "Total tokens",
-      "type": "stat"
+      "title": "Update token prices",
+      "type": "piechart"
     }
   ],
   "refresh": "",
