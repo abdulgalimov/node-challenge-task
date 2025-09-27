@@ -11,6 +11,7 @@ import {
 } from "../../db";
 import { CommonLogger, Task } from "../../../utils";
 import { PriceReaderService } from "../../price-reader/services";
+import { DurationMetric } from "../../metrics";
 
 @Injectable()
 export class UpdateService implements OnApplicationShutdown {
@@ -18,7 +19,7 @@ export class UpdateService implements OnApplicationShutdown {
 
   private readonly task: Task = new Task();
 
-  private readonly maxLoadLimit = 1000;
+  public readonly maxLoadLimit = 1000;
 
   constructor(
     private readonly tokenService: TokenService,
@@ -47,6 +48,10 @@ export class UpdateService implements OnApplicationShutdown {
     this.task.resolve();
   }
 
+  @DurationMetric({
+    name: "update_tokens_prices",
+    help: "Duration of update all tokens prices in seconds",
+  })
   public async updatePrices(): Promise<void> {
     this.logger.log("Start update prices");
     const updatedCount = await this.transactionsService.create(async (tx) => {

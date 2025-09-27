@@ -4,9 +4,15 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { UpdateService, PrepareService } from "./services";
 import { KafkaModule } from "../kafka";
 import { PriceReaderModule } from "../price-reader";
+import { MetricsModule } from "../metrics/metrics.module";
 
 @Module({
-  imports: [KafkaModule, PriceReaderModule, ScheduleModule.forRoot()],
+  imports: [
+    MetricsModule,
+    KafkaModule,
+    PriceReaderModule,
+    ScheduleModule.forRoot(),
+  ],
   providers: [UpdateService, PrepareService],
 })
 export class PriceUpdaterModule {}

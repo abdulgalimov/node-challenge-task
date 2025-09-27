@@ -1,8 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { ReadPriceResponse } from "../types";
+import { DurationMetric } from "../../metrics";
 
 @Injectable()
 export class PriceReaderService {
+  @DurationMetric({
+    name: "get_token_price",
+    help: "Duration of get tokens price in seconds",
+  })
   async getTokenPrice(): Promise<ReadPriceResponse> {
     // Simulate API call delay
     await new Promise<void>((resolve) => {
