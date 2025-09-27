@@ -1,5 +1,5 @@
 import { Static, Type } from "@sinclair/typebox";
-import { Nullable } from "../../../types";
+import { Nullable } from "../../../utils";
 
 // Zod schema for token price update message
 export const TokenPriceUpdateMessage = Type.Object({

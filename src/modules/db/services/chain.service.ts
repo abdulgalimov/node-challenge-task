@@ -11,7 +11,7 @@ import {
 } from "../entities";
 import { Inject, Injectable } from "@nestjs/common";
 import { DB_CLIENT } from "../constants";
-import { ChainNames } from "../../../types";
+import { ChainNames } from "../../../enums";
 
 @Injectable()
 export class ChainService {

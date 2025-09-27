@@ -4,10 +4,12 @@ import {
   loadDbConfig,
   LogoService,
   TokenService,
+  ChainInsert,
+  TokenInsert,
 } from "../src/modules";
-import { ChainInsert, TokenInsert } from "../src/modules/db/entities";
-import { ChainNames, LogoInfo } from "../src/types";
+import { ChainNames } from "../src/enums";
 import { CommonLogger } from "../src/utils";
+import { LogoInfo } from "./types";
 
 const logger = new CommonLogger("db:seed");
 
@@ -68,7 +70,7 @@ async function seedTokens() {
   const tokenDataList = await Promise.all([
     createTokenInsert(
       {
-        address: "111",
+        address: "address_1",
         symbol: "ETH",
         name: "Ethereum",
         decimals: 18,
@@ -85,7 +87,7 @@ async function seedTokens() {
     ),
     createTokenInsert(
       {
-        address: "222",
+        address: "address_2",
         symbol: "BTC",
         name: "Bitcoin",
         decimals: 8,
@@ -102,7 +104,7 @@ async function seedTokens() {
     ),
     createTokenInsert(
       {
-        address: "333",
+        address: "address_3",
         symbol: "SOL",
         name: "Solana",
         decimals: 9,
