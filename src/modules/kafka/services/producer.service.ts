@@ -6,15 +6,14 @@ import {
 } from "@nestjs/common";
 import { Kafka, Message, Producer } from "kafkajs";
 import { ConfigService } from "@nestjs/config";
+import { Value } from "@sinclair/typebox/value";
 
 import {
   TokenPriceUpdateMessage,
   TokenPriceUpdateMessageCreate,
 } from "../types";
-
 import { CommonLogger } from "../../../utils";
 import { KafkaConfig } from "../../config";
-import { Value } from "@sinclair/typebox/value";
 
 @Injectable()
 export class ProducerService

@@ -3,12 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { Value } from "@sinclair/typebox/value";
 
 import * as chains from "../entities/chain.entity";
-import {
-  ChainInsert,
-  chainInsertSchema,
-  ChainSelect,
-  chainSelectSchema,
-} from "../entities";
+import { ChainInsert, ChainSelect } from "../entities";
 import { Inject, Injectable } from "@nestjs/common";
 import { DB_CLIENT } from "../constants";
 import { ChainNames } from "../../../enums";
@@ -35,11 +30,11 @@ export class ChainService {
 
     const item = result[0];
 
-    return item ? Value.Parse(chainSelectSchema, item) : null;
+    return item ? Value.Parse(ChainSelect, item) : null;
   }
 
   public async createList(dataList: ChainInsert[]) {
-    dataList.forEach((item) => Value.Parse(chainInsertSchema, item));
+    dataList.forEach((item) => Value.Parse(ChainInsert, item));
 
     await this.db
       .insert(chains.chainsTable)

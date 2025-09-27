@@ -8,6 +8,7 @@ import {
 
 import { AppModule } from "./app.module";
 import { CommonLogger, createSwagger } from "./utils";
+import { HealthModule } from "./modules";
 
 async function bootstrap() {
   const logger = new CommonLogger("bootstrap");
@@ -24,7 +25,7 @@ async function bootstrap() {
 
     const configService = app.get(ConfigService);
 
-    createSwagger(app);
+    createSwagger(app, [HealthModule]);
 
     const port = configService.getOrThrow<number>("port");
 

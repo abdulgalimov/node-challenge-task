@@ -18,8 +18,10 @@ export const chainsTable = pgTable(
   (table) => [uniqueIndex("name").on(table.name)]
 );
 
-export const chainInsertSchema = createInsertSchema(chainsTable);
-export const chainSelectSchema = createSelectSchema(chainsTable);
+export const ChainInsert = createInsertSchema(chainsTable);
 
-export type ChainInsert = Static<typeof chainInsertSchema>;
-export type ChainSelect = Static<typeof chainSelectSchema>;
+export type ChainInsert = Static<typeof ChainInsert>;
+
+export const ChainSelect = createSelectSchema(chainsTable);
+
+export type ChainSelect = Static<typeof ChainSelect>;

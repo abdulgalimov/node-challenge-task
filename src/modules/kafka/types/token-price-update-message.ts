@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox";
+
 import { Nullable } from "../../../utils";
 
 // Zod schema for token price update message

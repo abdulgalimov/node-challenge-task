@@ -24,10 +24,10 @@ export const logosTable = pgTable(
   ]
 );
 
-export const logoInsertSchema = createInsertSchema(logosTable);
+export const LogoInsert = createInsertSchema(logosTable);
 
-export const logoSelectSchema = createSelectSchema(logosTable);
+export type LogoInsert = Static<typeof LogoInsert>;
 
-export type LogoInsert = Static<typeof logoInsertSchema>;
+export const LogoSelect = createSelectSchema(logosTable);
 
-export type LogoSelect = Static<typeof logoSelectSchema>;
+export type LogoSelect = Static<typeof LogoSelect>;

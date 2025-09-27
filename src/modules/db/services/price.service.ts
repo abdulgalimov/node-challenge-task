@@ -4,7 +4,7 @@ import * as prices from "../entities/price.entity";
 import { Inject, Injectable } from "@nestjs/common";
 import { DB_CLIENT } from "../constants";
 import { Transaction } from "../types";
-import { PriceSelect, priceSelectSchema } from "../entities";
+import { PriceSelect } from "../entities";
 import { eq } from "drizzle-orm";
 import { Value } from "@sinclair/typebox/value";
 
@@ -22,7 +22,7 @@ export class PriceService {
 
     const item = result[0];
 
-    return item ? Value.Parse(priceSelectSchema, item) : null;
+    return item ? Value.Parse(PriceSelect, item) : null;
   }
 
   public async updatePrice(
@@ -31,22 +31,19 @@ export class PriceService {
     lastPrice: bigint,
     lastUpdateAuthor: string
   ) {
-    const lastUpdatedAt = new Date();
-
     await tx
       .insert(prices.pricesTable)
       .values({
         tokenId,
         lastPrice,
-        lastUpdatedAt,
         lastUpdateAuthor,
       })
       .onConflictDoUpdate({
         target: prices.pricesTable.tokenId,
         set: {
           lastPrice,
-          lastUpdatedAt,
           lastUpdateAuthor,
+          updatedAt: new Date(),
         },
       });
   }

@@ -60,10 +60,10 @@ export const tokensTableRelations = relations(tokensTable, ({ one }) => ({
   }),
 }));
 
-export const tokenInsertSchema = createInsertSchema(tokensTable);
+export const TokenInsert = createInsertSchema(tokensTable);
 
-export const tokenSelectSchema = createSelectSchema(tokensTable);
+export type TokenInsert = Static<typeof TokenInsert>;
 
-export type TokenInsert = Static<typeof tokenInsertSchema>;
+export const TokenSelect = createSelectSchema(tokensTable);
 
-export type TokenSelect = Static<typeof tokenSelectSchema>;
+export type TokenSelect = Static<typeof TokenSelect>;

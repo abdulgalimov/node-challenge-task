@@ -18,7 +18,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
     "db:deploy": "drizzle-kit migrate --config drizzle.config.ts",
-    "db:seed": "ts-node -r tsconfig-paths/register scripts/db.seed.ts"
+    "db:seed": "ts-node -r tsconfig-paths/register scripts/db.seed.ts",
+    "db:seed:more": "ts-node -r tsconfig-paths/register scripts/db.seed.ts --more"
   },
   "keywords": [
     "nestjs",

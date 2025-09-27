@@ -5,12 +5,7 @@ import { Inject, Injectable } from "@nestjs/common";
 
 import * as tokens from "../entities/token.entity";
 import { DB_CLIENT } from "../constants";
-import {
-  TokenInsert,
-  tokenInsertSchema,
-  TokenSelect,
-  tokenSelectSchema,
-} from "../entities";
+import { TokenInsert, TokenSelect } from "../entities";
 import { Transaction } from "../types";
 
 @Injectable()
@@ -75,7 +70,7 @@ export class TokenService {
       return null;
     }
 
-    return Value.Parse(tokenSelectSchema, item);
+    return Value.Parse(TokenSelect, item);
   }
 
   public async getByIdSafe(id: string): Promise<TokenSelect> {
@@ -93,7 +88,7 @@ export class TokenService {
   }
 
   public async createList(dataList: TokenInsert[]) {
-    dataList.forEach((item) => Value.Parse(tokenInsertSchema, item));
+    dataList.forEach((item) => Value.Parse(TokenInsert, item));
 
     const maxCount = 5000;
     for (let i = 0; i < dataList.length; i += maxCount) {

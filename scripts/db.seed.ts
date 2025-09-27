@@ -183,9 +183,13 @@ async function seedManyMore() {
 async function seedData() {
   await seedChains();
 
-  // await seedTokens();
+  const seedMore = process.argv[2] === "--more";
 
-  await seedManyMore();
+  if (seedMore) {
+    await seedManyMore();
+  } else {
+    await seedTokens();
+  }
 }
 
 seedData().catch(console.error);

@@ -1,5 +1,5 @@
 import { type Static } from "@sinclair/typebox";
-import { bigint, date, pgTable, varchar } from "drizzle-orm/pg-core";
+import { bigint, pgTable, varchar } from "drizzle-orm/pg-core";
 import { uniqueIndex } from "drizzle-orm/pg-core/indexes";
 
 import { timestamps, uuidField } from "./fields";
@@ -10,9 +10,6 @@ export const pricesTable = pgTable(
   "prices",
   {
     id: uuidField(),
-    lastUpdatedAt: date("last_updated_at", {
-      mode: "date",
-    }).notNull(),
     lastUpdateAuthor: varchar("last_update_author").notNull(),
     lastPrice: bigint("last_price", { mode: "bigint" }).notNull(),
 
@@ -25,10 +22,10 @@ export const pricesTable = pgTable(
   (table) => [uniqueIndex("token_id").on(table.tokenId)]
 );
 
-export const priceInsertSchema = createInsertSchema(pricesTable);
+export const PriceInsert = createInsertSchema(pricesTable);
 
-export const priceSelectSchema = createSelectSchema(pricesTable);
+export type PriceInsert = Static<typeof PriceInsert>;
 
-export type PriceInsert = Static<typeof priceInsertSchema>;
+export const PriceSelect = createSelectSchema(pricesTable);
 
-export type PriceSelect = Static<typeof priceSelectSchema>;
+export type PriceSelect = Static<typeof PriceSelect>;

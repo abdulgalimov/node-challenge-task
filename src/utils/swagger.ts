@@ -1,8 +1,9 @@
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { HealthModule } from "../modules";
 import { INestApplication } from "@nestjs/common";
 
-export function createSwagger(app: INestApplication) {
+export type AnyModule = new (...args: unknown[]) => unknown;
+
+export function createSwagger(app: INestApplication, modules: AnyModule[]) {
   const documentBuilder = new DocumentBuilder()
     .setTitle("Token price updater")
     .setVersion("1.0");
@@ -10,7 +11,7 @@ export function createSwagger(app: INestApplication) {
   const config = documentBuilder.build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    include: [HealthModule],
+    include: [...modules],
   });
 
   const path = `swagger`;

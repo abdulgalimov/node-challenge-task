@@ -1,5 +1,5 @@
 {
-  "id": "417b9268-af00-46af-a8a1-2378449d38e4",
+  "id": "4af6fb04-1724-4780-a0a4-e9c0e424c3e2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -116,6 +116,21 @@
             }
           ],
           "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "price_update_required": {
+          "name": "price_update_required",
+          "columns": [
+            {
+              "expression": "price_update_required",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -328,12 +343,6 @@
           "name": "id",
           "type": "varchar",
           "primaryKey": true,
-          "notNull": true
-        },
-        "last_updated_at": {
-          "name": "last_updated_at",
-          "type": "date",
-          "primaryKey": false,
           "notNull": true
         },
         "last_update_author": {
