@@ -7,6 +7,7 @@ export default defineConfig({
     "./src/modules/db/entities/token.entity.ts",
     "./src/modules/db/entities/logo.entity.ts",
     "./src/modules/db/entities/chain.entity.ts",
+    "./src/modules/db/entities/price.entity.ts",
   ],
   out: "./src/modules/db/migrations",
   dialect: "postgresql",

@@ -93,8 +93,6 @@ export class ProducerService
     };
 
     try {
-      TokenPriceUpdateMessage.parse(message);
-
       return {
         key: message.tokenId,
         value: JSON.stringify(message),

@@ -7,9 +7,8 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 
 import { MockPriceService } from "./mock-price.service";
 import { ProducerService, TokenPriceUpdateMessageCreate } from "../../kafka";
-import { TokenService } from "../../db";
+import { PriceService, TokenService, TransactionsService, Tx } from "../../db";
 import { Token } from "../../../types";
-import { UpdatePriceResponse } from "./types";
 import { CommonLogger, Task } from "../../../utils";
 
 @Injectable()
@@ -22,12 +21,14 @@ export class TokenPriceUpdateService
 
   constructor(
     private readonly tokenService: TokenService,
-    private readonly priceService: MockPriceService,
+    private readonly priceService: PriceService,
+    private readonly transactionsService: TransactionsService,
+    private readonly readPriceService: MockPriceService,
     private readonly kafkaProducer: ProducerService
   ) {}
 
   public async onApplicationBootstrap() {
-    await this.updatePricesSafe();
+    //
   }
 
   public async onApplicationShutdown() {
@@ -37,85 +38,89 @@ export class TokenPriceUpdateService
   }
 
   @Cron(CronExpression.EVERY_5_SECONDS)
-  public async updatePricesSafe(): Promise<void> {
-    if (this.activeTask !== null) {
+  public async updateRequire(): Promise<void> {
+    if (this.activeTask) {
       return;
     }
-
     this.activeTask = new Task();
 
-    try {
+    const updateRequiredCount =
+      await this.tokenService.getPriceUpdateRequiredCount();
+
+    if (updateRequiredCount === 0) {
+      await this.tokenService.priceUpdateRequireAll();
+    } else {
       await this.updatePrices();
-    } catch (error: unknown) {
-      this.logger.error(`Error updating prices`, {
-        error,
-      });
-    } finally {
-      this.activeTask.resolve();
-      this.activeTask = null;
     }
+
+    this.activeTask.resolve();
+    this.activeTask = null;
   }
 
   public async updatePrices(): Promise<void> {
-    const tokens = await this.tokenService.getAll();
-    this.logger.log(`Updating prices for ${tokens.length} tokens...`);
+    const updatedCount = await this.transactionsService.db.transaction(
+      async (tx) => {
+        const tokens = await this.tokenService.getUpdateRequired(tx, 1000);
+        if (!tokens.length) {
+          return 0;
+        }
 
-    const responses = await Promise.all(
-      tokens.map((token) => this.updateTokenPriceSafe(token))
+        const updateResponses = await Promise.all(
+          tokens.map(async (token) => this.updateTokenPriceSafe(tx, token))
+        );
+
+        const responsesFiltered = updateResponses.filter((res) => res != null);
+
+        await this.kafkaProducer.sendBatch(responsesFiltered);
+
+        return tokens.length;
+      }
     );
 
-    const updateMessages: TokenPriceUpdateMessageCreate[] = responses
-      .filter((response) => response != null)
-      .map((response) => {
-        const { newToken, oldPrice } = response;
-        return {
-          tokenId: newToken.id,
-          symbol: newToken.symbol || "UNKNOWN",
-          oldPrice: oldPrice.toString(),
-          newPrice: newToken.price.toString(),
-          // timestamp will be set to current date by default if not provided
-        };
-      });
-
-    await this.kafkaProducer.sendBatch(updateMessages);
+    if (updatedCount > 0) {
+      await this.updatePrices();
+    }
   }
 
   private async updateTokenPriceSafe(
+    tx: Tx,
     token: Token
-  ): Promise<UpdatePriceResponse | null> {
+  ): Promise<TokenPriceUpdateMessageCreate | null> {
     try {
-      return await this.updateTokenPrice(token);
+      return await this.updateTokenPrice(tx, token);
     } catch (error: unknown) {
       this.logger.error(`Error updating price for token ${token.id}`, {
         error,
       });
 
       return null;
+    } finally {
+      await this.tokenService.priceUpdated(tx, token.id);
     }
   }
 
   private async updateTokenPrice(
+    tx: Tx,
     token: Token
-  ): Promise<UpdatePriceResponse | null> {
-    const oldPrice = token.price;
-    const newPrice = await this.priceService.getRandomPriceForToken();
+  ): Promise<TokenPriceUpdateMessageCreate | null> {
+    const oldPrice = 0n;
+    const newPrice = await this.readPriceService.getRandomPriceForToken();
 
     if (oldPrice === newPrice) {
       return null;
     }
 
-    const newToken = await this.tokenService.updatePrice(token.id, newPrice);
-    if (!newToken) {
-      return null;
-    }
+    await this.priceService.updatePrice(tx, token.id, newPrice);
 
     this.logger.log(
       `Updated price for ${token.id}: ${oldPrice} -> ${newPrice}`
     );
 
     return {
-      newToken,
-      oldPrice: token.price,
+      tokenId: token.id,
+      symbol: token.symbol,
+      oldPrice: oldPrice.toString(),
+      newPrice: newPrice.toString(),
     };
   }
 }

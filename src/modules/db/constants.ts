@@ -1,1 +1,1 @@
-export const DB_PROVIDE = "db_provide";
+export const DB_CLIENT = "db_client";

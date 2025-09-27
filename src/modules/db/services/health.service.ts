@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { DB_PROVIDE } from "../constants";
+import { DB_CLIENT } from "../constants";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as chains from "../entities/chain.entity";
 import { sql } from "drizzle-orm";
@@ -7,7 +7,7 @@ import { sql } from "drizzle-orm";
 @Injectable()
 export class DbHealthService {
   public constructor(
-    @Inject(DB_PROVIDE) private readonly db: NodePgDatabase<typeof chains>
+    @Inject(DB_CLIENT) private readonly db: NodePgDatabase<typeof chains>
   ) {}
 
   public async isReady(): Promise<boolean> {

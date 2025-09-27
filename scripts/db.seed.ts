@@ -1,6 +1,6 @@
-import { createDbClient } from "../src/modules";
 import {
   ChainService,
+  createDbClient,
   loadDbConfig,
   LogoService,
   TokenService,
@@ -74,10 +74,7 @@ async function seedTokens() {
         decimals: 18,
         isNative: true,
         isProtected: true,
-        lastUpdateAuthor: "Seeder",
         priority: 1,
-        price: 300000n,
-        lastPriceUpdate: new Date(),
       },
       ChainNames.Ethereum,
       {
@@ -94,10 +91,7 @@ async function seedTokens() {
         decimals: 8,
         isNative: true,
         isProtected: true,
-        lastUpdateAuthor: "Seeder",
         priority: 2,
-        price: 4500000n,
-        lastPriceUpdate: new Date(),
       },
       ChainNames.Bitcoin,
       {
@@ -114,10 +108,7 @@ async function seedTokens() {
         decimals: 9,
         isNative: true,
         isProtected: true,
-        lastUpdateAuthor: "Seeder",
         priority: 3,
-        price: 15000n,
-        lastPriceUpdate: new Date(),
       },
       ChainNames.Solana,
       {
@@ -147,13 +138,52 @@ async function createTokenInsert(
     ...data,
     chainId: chain.id,
     logoId: logo.id,
+    priceId: null,
   };
+}
+
+async function seedManyMore() {
+  const chain = await chainService.findByName(ChainNames.Ethereum);
+  if (!chain) {
+    throw new Error("Could not find chain");
+  }
+
+  const logo = await logoService.get({
+    bigRelativePath: "images/eth_big.png",
+    smallRelativePath: "images/eth_small.png",
+    thumbRelativePath: "images/eth_thumb.png",
+  });
+
+  for (let k = 0; k < 10; k += 1) {
+    const tokensInsert: TokenInsert[] = [];
+    const count = await tokenService.count();
+
+    for (let i = 0; i < 100_000; i += 1) {
+      const index = count + i + 1;
+
+      tokensInsert.push({
+        address: `address_${index}`,
+        symbol: `ETH${index}`,
+        name: `Ethereum_${index}`,
+        decimals: 18,
+        isNative: true,
+        isProtected: true,
+        priority: 1,
+        chainId: chain.id,
+        logoId: logo.id,
+      });
+    }
+
+    await tokenService.createList(tokensInsert);
+  }
 }
 
 async function seedData() {
   await seedChains();
 
-  await seedTokens();
+  // await seedTokens();
+
+  await seedManyMore();
 }
 
 seedData().catch(console.error);

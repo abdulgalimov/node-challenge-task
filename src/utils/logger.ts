@@ -29,7 +29,7 @@ export class CommonLogger {
     );
 
     this.logger = winston.createLogger({
-      level: "debug",
+      level: "warn",
       defaultMeta: { service: name ?? "" },
       transports,
     });

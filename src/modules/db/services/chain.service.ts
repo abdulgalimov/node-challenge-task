@@ -3,15 +3,20 @@ import { eq, sql } from "drizzle-orm";
 import { Value } from "@sinclair/typebox/value";
 
 import * as chains from "../entities/chain.entity";
-import { ChainInsert, chainInsertSchema } from "../entities";
+import {
+  ChainInsert,
+  chainInsertSchema,
+  ChainSelect,
+  chainSelectSchema,
+} from "../entities";
 import { Inject, Injectable } from "@nestjs/common";
-import { DB_PROVIDE } from "../constants";
-import { Chain, ChainNames } from "../../../types";
+import { DB_CLIENT } from "../constants";
+import { ChainNames } from "../../../types";
 
 @Injectable()
 export class ChainService {
   constructor(
-    @Inject(DB_PROVIDE) private readonly db: NodePgDatabase<typeof chains>
+    @Inject(DB_CLIENT) private readonly db: NodePgDatabase<typeof chains>
   ) {}
 
   public async count(): Promise<number> {
@@ -22,7 +27,7 @@ export class ChainService {
     return result[0] ? +result[0].count : 0;
   }
 
-  public async findByName(name: ChainNames): Promise<Chain | null> {
+  public async findByName(name: ChainNames): Promise<ChainSelect | null> {
     const result = await this.db
       .select()
       .from(chains.chainsTable)
@@ -30,7 +35,7 @@ export class ChainService {
 
     const item = result[0];
 
-    return item ? Value.Parse(Chain, item) : null;
+    return item ? Value.Parse(chainSelectSchema, item) : null;
   }
 
   public async createList(dataList: ChainInsert[]) {

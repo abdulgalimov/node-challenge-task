@@ -8,12 +8,11 @@ export const Token = Type.Object({
   name: Type.String(),
   decimals: Type.Number(),
   isNative: Type.Boolean(),
-  chainId: Type.String(),
   isProtected: Type.Boolean(),
-  lastUpdateAuthor: Nullable(Type.String()),
   priority: Type.Number(),
-  lastPriceUpdate: Nullable(Type.Date()),
-  price: Type.BigInt(),
+  logoId: Type.String(),
+  chainId: Type.String(),
+  priceId: Nullable(Type.String()),
 });
 
 export type Token = Static<typeof Token>;

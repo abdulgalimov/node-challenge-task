@@ -1,5 +1,5 @@
 {
-  "id": "bb981d03-1124-4608-af38-2f1524cc88f7",
+  "id": "417b9268-af00-46af-a8a1-2378449d38e4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -38,25 +38,19 @@
           "primaryKey": false,
           "notNull": true
         },
-        "isNative": {
-          "name": "isNative",
+        "is_native": {
+          "name": "is_native",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
         },
-        "isProtected": {
-          "name": "isProtected",
+        "is_protected": {
+          "name": "is_protected",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
-        },
-        "lastUpdateAuthor": {
-          "name": "lastUpdateAuthor",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
         },
         "priority": {
           "name": "priority",
@@ -65,45 +59,46 @@
           "notNull": true,
           "default": 0
         },
-        "lastPriceUpdate": {
-          "name": "lastPriceUpdate",
-          "type": "date",
+        "price_id": {
+          "name": "price_id",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "price": {
-          "name": "price",
-          "type": "bigint",
+        "price_update_required": {
+          "name": "price_update_required",
+          "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": true
         },
-        "chainId": {
-          "name": "chainId",
+        "chain_id": {
+          "name": "chain_id",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "logoId": {
-          "name": "logoId",
+        "logo_id": {
+          "name": "logo_id",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "updatedAt": {
-          "name": "updatedAt",
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
-        "createdAt": {
-          "name": "createdAt",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "deletedAt": {
-          "name": "deletedAt",
+        "deleted_at": {
+          "name": "deleted_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
@@ -127,12 +122,12 @@
         }
       },
       "foreignKeys": {
-        "tokens_chainId_chains_id_fk": {
-          "name": "tokens_chainId_chains_id_fk",
+        "tokens_chain_id_chains_id_fk": {
+          "name": "tokens_chain_id_chains_id_fk",
           "tableFrom": "tokens",
           "tableTo": "chains",
           "columnsFrom": [
-            "chainId"
+            "chain_id"
           ],
           "columnsTo": [
             "id"
@@ -140,12 +135,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "tokens_logoId_logos_id_fk": {
-          "name": "tokens_logoId_logos_id_fk",
+        "tokens_logo_id_logos_id_fk": {
+          "name": "tokens_logo_id_logos_id_fk",
           "tableFrom": "tokens",
           "tableTo": "logos",
           "columnsFrom": [
-            "logoId"
+            "logo_id"
           ],
           "columnsTo": [
             "id"
@@ -170,39 +165,39 @@
           "primaryKey": true,
           "notNull": true
         },
-        "bigRelativePath": {
-          "name": "bigRelativePath",
+        "big_relative_path": {
+          "name": "big_relative_path",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "smallRelativePath": {
-          "name": "smallRelativePath",
+        "small_relative_path": {
+          "name": "small_relative_path",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "thumbRelativePath": {
-          "name": "thumbRelativePath",
+        "thumb_relative_path": {
+          "name": "thumb_relative_path",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "updatedAt": {
-          "name": "updatedAt",
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
-        "createdAt": {
-          "name": "createdAt",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "deletedAt": {
-          "name": "deletedAt",
+        "deleted_at": {
+          "name": "deleted_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
@@ -213,19 +208,19 @@
           "name": "all_path",
           "columns": [
             {
-              "expression": "bigRelativePath",
+              "expression": "big_relative_path",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
             },
             {
-              "expression": "smallRelativePath",
+              "expression": "small_relative_path",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
             },
             {
-              "expression": "thumbRelativePath",
+              "expression": "thumb_relative_path",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -254,8 +249,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "deId": {
-          "name": "deId",
+        "deid": {
+          "name": "deid",
           "type": "serial",
           "primaryKey": false,
           "notNull": true
@@ -266,28 +261,28 @@
           "primaryKey": false,
           "notNull": true
         },
-        "isEnabled": {
-          "name": "isEnabled",
+        "is_enabled": {
+          "name": "is_enabled",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
-        "createdAt": {
-          "name": "createdAt",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "deletedAt": {
-          "name": "deletedAt",
+        "deleted_at": {
+          "name": "deleted_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
@@ -313,14 +308,106 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "chains_deId_unique": {
-          "name": "chains_deId_unique",
+        "chains_deid_unique": {
+          "name": "chains_deid_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "deId"
+            "deid"
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.prices": {
+      "name": "prices",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "last_updated_at": {
+          "name": "last_updated_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_update_author": {
+          "name": "last_update_author",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_price": {
+          "name": "last_price",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_id": {
+          "name": "token_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "token_id": {
+          "name": "token_id",
+          "columns": [
+            {
+              "expression": "token_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "prices_token_id_tokens_id_fk": {
+          "name": "prices_token_id_tokens_id_fk",
+          "tableFrom": "prices",
+          "tableTo": "tokens",
+          "columnsFrom": [
+            "token_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

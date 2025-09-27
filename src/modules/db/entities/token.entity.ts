@@ -1,8 +1,6 @@
 import { type Static } from "@sinclair/typebox";
 import {
-  bigint,
   boolean,
-  date,
   integer,
   pgTable,
   smallint,
@@ -10,8 +8,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { uniqueIndex } from "drizzle-orm/pg-core/indexes";
 
-import { uuidField, timestamps } from "./fields";
-import { createInsertSchema } from "drizzle-typebox";
+import { timestamps, uuidField } from "./fields";
+import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import { relations } from "drizzle-orm";
 import { chainsTable } from "./chain.entity";
 import { logosTable } from "./logo.entity";
@@ -20,28 +18,28 @@ export const tokensTable = pgTable(
   "tokens",
   {
     id: uuidField(),
-    address: varchar().notNull(),
-    symbol: varchar().notNull(),
-    name: varchar().notNull(),
-    decimals: smallint().notNull(),
-    isNative: boolean().default(false).notNull(),
-    isProtected: boolean().default(false).notNull(),
-    lastUpdateAuthor: varchar(),
-    priority: integer().default(0).notNull(),
-    lastPriceUpdate: date({
-      mode: "date",
-    }),
-    price: bigint({ mode: "bigint" }).notNull(),
+    address: varchar("address").notNull(),
+    symbol: varchar("symbol").notNull(),
+    name: varchar("name").notNull(),
+    decimals: smallint("decimals").notNull(),
+    isNative: boolean("is_native").default(false).notNull(),
+    isProtected: boolean("is_protected").default(false).notNull(),
+    priority: integer("priority").default(0).notNull(),
 
-    chainId: varchar()
+    priceId: varchar("price_id"),
+    priceUpdateRequired: boolean("price_update_required")
+      .notNull()
+      .default(true),
+
+    chainId: varchar("chain_id")
       .references(() => chainsTable.id, { onDelete: "cascade" })
       .notNull(),
 
-    logoId: varchar()
+    logoId: varchar("logo_id")
       .references(() => logosTable.id, { onDelete: "cascade" })
       .notNull(),
 
-    ...timestamps,
+    ...timestamps(),
   },
   (table) => [uniqueIndex("address").on(table.address)]
 );
@@ -59,4 +57,8 @@ export const tokensTableRelations = relations(tokensTable, ({ one }) => ({
 
 export const tokenInsertSchema = createInsertSchema(tokensTable);
 
+export const tokenSelectSchema = createSelectSchema(tokensTable);
+
 export type TokenInsert = Static<typeof tokenInsertSchema>;
+
+export type TokenSelect = Static<typeof tokenSelectSchema>;

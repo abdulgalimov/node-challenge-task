@@ -5,6 +5,7 @@ import { DbConfig } from "../../types";
 import * as tokensTable from "./entities/token.entity";
 import * as chainsTable from "./entities/chain.entity";
 import * as logosTable from "./entities/logo.entity";
+import * as pricesTable from "./entities/price.entity";
 
 export function createDbClient(dbConfig: DbConfig) {
   const { connectionUrl } = dbConfig;
@@ -13,6 +14,6 @@ export function createDbClient(dbConfig: DbConfig) {
   });
   return drizzle({
     client: pool,
-    schema: { ...tokensTable, ...chainsTable, ...logosTable },
+    schema: { ...tokensTable, ...chainsTable, ...logosTable, ...pricesTable },
   });
 }

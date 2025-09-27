@@ -3,18 +3,22 @@ import { and, eq } from "drizzle-orm";
 import { Value } from "@sinclair/typebox/value";
 
 import * as logos from "../entities/logo.entity";
-import { logoInsertSchema } from "../entities";
+import {
+  LogoInsert,
+  logoInsertSchema,
+  LogoSelect,
+  logoSelectSchema,
+} from "../entities";
 import { Inject, Injectable } from "@nestjs/common";
-import { DB_PROVIDE } from "../constants";
-import { Logo, LogoInfo } from "../../../types";
+import { DB_CLIENT } from "../constants";
 
 @Injectable()
 export class LogoService {
   constructor(
-    @Inject(DB_PROVIDE) private readonly db: NodePgDatabase<typeof logos>
+    @Inject(DB_CLIENT) private readonly db: NodePgDatabase<typeof logos>
   ) {}
 
-  public async get(logo: LogoInfo): Promise<Logo> {
+  public async get(logo: LogoInsert): Promise<LogoSelect> {
     Value.Parse(logoInsertSchema, logo);
 
     await this.db
@@ -47,6 +51,6 @@ export class LogoService {
       throw new Error("Failed get logo after insert");
     }
 
-    return Value.Parse(Logo, item);
+    return Value.Parse(logoSelectSchema, item);
   }
 }

@@ -1,5 +1,5 @@
 import { boolean, serial, pgTable, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-typebox";
+import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import type { Static } from "@sinclair/typebox";
 import { uniqueIndex } from "drizzle-orm/pg-core/indexes";
 
@@ -9,15 +9,17 @@ export const chainsTable = pgTable(
   "chains",
   {
     id: uuidField(),
-    deId: serial().notNull().unique(),
-    name: varchar().notNull(),
-    isEnabled: boolean().default(false).notNull(),
+    deId: serial("deid").notNull().unique(),
+    name: varchar("name").notNull(),
+    isEnabled: boolean("is_enabled").default(false).notNull(),
 
-    ...timestamps,
+    ...timestamps(),
   },
   (table) => [uniqueIndex("name").on(table.name)]
 );
 
 export const chainInsertSchema = createInsertSchema(chainsTable);
+export const chainSelectSchema = createSelectSchema(chainsTable);
 
 export type ChainInsert = Static<typeof chainInsertSchema>;
+export type ChainSelect = Static<typeof chainSelectSchema>;
