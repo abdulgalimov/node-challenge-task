@@ -53,7 +53,7 @@ export class TokenService {
     limit: number
   ): Promise<TokenSelect[]> {
     const { rows } = await tx.execute<{ id: string }>(
-      sql`SELECT id FROM tokens WHERE price_update_required = true FOR UPDATE SKIP LOCKED LIMIT ${limit};`
+      sql`SELECT id FROM tokens WHERE wait_price_update = true FOR UPDATE SKIP LOCKED LIMIT ${limit};`
     );
 
     return Promise.all(rows.map((row) => this.getByIdSafe(row.id)));
