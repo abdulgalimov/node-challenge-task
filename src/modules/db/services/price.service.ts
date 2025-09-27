@@ -3,7 +3,10 @@ import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as prices from "../entities/price.entity";
 import { Inject, Injectable } from "@nestjs/common";
 import { DB_CLIENT } from "../constants";
-import { Tx } from "./transactions.service";
+import { Transaction } from "../types";
+import { PriceSelect, priceSelectSchema } from "../entities";
+import { eq } from "drizzle-orm";
+import { Value } from "@sinclair/typebox/value";
 
 @Injectable()
 export class PriceService {
@@ -11,22 +14,39 @@ export class PriceService {
     @Inject(DB_CLIENT) private readonly db: NodePgDatabase<typeof prices>
   ) {}
 
-  public async updatePrice(tx: Tx, tokenId: string, lastPrice: bigint) {
+  public async getById(id: string): Promise<PriceSelect | null> {
+    const result = await this.db
+      .select()
+      .from(prices.pricesTable)
+      .where(eq(prices.pricesTable.id, id));
+
+    const item = result[0];
+
+    return item ? Value.Parse(priceSelectSchema, item) : null;
+  }
+
+  public async updatePrice(
+    tx: Transaction,
+    tokenId: string,
+    lastPrice: bigint,
+    lastUpdateAuthor: string
+  ) {
     const lastUpdatedAt = new Date();
+
     await tx
       .insert(prices.pricesTable)
       .values({
         tokenId,
         lastPrice,
         lastUpdatedAt,
-        lastUpdateAuthor: "none",
+        lastUpdateAuthor,
       })
       .onConflictDoUpdate({
         target: prices.pricesTable.tokenId,
         set: {
           lastPrice,
           lastUpdatedAt,
-          lastUpdateAuthor: "none",
+          lastUpdateAuthor,
         },
       });
   }

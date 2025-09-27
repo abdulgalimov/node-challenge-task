@@ -11,7 +11,7 @@ import {
   TokenSelect,
   tokenSelectSchema,
 } from "../entities";
-import { Tx } from "./transactions.service";
+import { Transaction } from "../types";
 
 @Injectable()
 export class TokenService {
@@ -42,7 +42,7 @@ export class TokenService {
     });
   }
 
-  public async priceUpdated(tx: Tx, id: string) {
+  public async priceUpdated(tx: Transaction, id: string) {
     await tx
       .update(tokens.tokensTable)
       .set({
@@ -52,7 +52,7 @@ export class TokenService {
   }
 
   public async getUpdateRequired(
-    tx: Tx,
+    tx: Transaction,
     limit: number
   ): Promise<TokenSelect[]> {
     const { rows } = await tx.execute<{ id: string }>(

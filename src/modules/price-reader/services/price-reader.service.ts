@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import { NewPriceResponse } from "../types";
 
 @Injectable()
-export class MockPriceService {
-  async getRandomPriceForToken(): Promise<bigint> {
+export class PriceReaderService {
+  async getTokenPrice(): Promise<NewPriceResponse> {
     // Simulate API call delay
     await new Promise<void>((resolve) => {
       setTimeout(() => {
@@ -13,7 +14,10 @@ export class MockPriceService {
     const basePrice = this.getRandomInt(1, 100000);
     const randomFactor = Math.floor(Math.random() * 10);
 
-    return BigInt(basePrice) * BigInt(randomFactor);
+    return {
+      price: BigInt(basePrice) * BigInt(randomFactor),
+      author: "mock",
+    };
   }
 
   private getRandomInt(min: number, max: number): number {

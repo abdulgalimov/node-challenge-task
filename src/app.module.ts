@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import {
   GlobalConfigModule,
-  TokenUpdateModule,
+  PriceUpdaterModule,
   DbModule,
   HealthModule,
 } from "./modules";
@@ -15,7 +15,7 @@ import { GracefulShutdownModule } from "nestjs-graceful-shutdown";
     GlobalConfigModule,
     HealthModule,
     DbModule,
-    TokenUpdateModule,
+    PriceUpdaterModule,
   ],
 })
 export class AppModule {}
