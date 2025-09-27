@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { AppConfig, DbConfig, KafkaConfig } from "../../types";
+import { AppConfig, DbConfig, KafkaConfig } from "./types";
 import { Value } from "@sinclair/typebox/value";
 
 export function loadKafkaConfig(): KafkaConfig {

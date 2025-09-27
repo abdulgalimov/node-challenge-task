@@ -19,8 +19,6 @@ export class TransactionsService {
   public async create<T = unknown>(
     callback: (tx: Transaction) => Promise<T>
   ): Promise<T> {
-    return await this.db.transaction(async (tx) => {
-      return await callback(tx);
-    });
+    return await this.db.transaction(callback);
   }
 }

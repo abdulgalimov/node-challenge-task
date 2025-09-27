@@ -5,13 +5,16 @@ import {
   OnModuleDestroy,
 } from "@nestjs/common";
 import { Kafka, Message, Producer } from "kafkajs";
+import { ConfigService } from "@nestjs/config";
+
 import {
   TokenPriceUpdateMessage,
   TokenPriceUpdateMessageCreate,
 } from "../types";
-import { ConfigService } from "@nestjs/config";
-import { KafkaConfig } from "../../../types";
+
 import { CommonLogger } from "../../../utils";
+import { KafkaConfig } from "../../config";
+import { Value } from "@sinclair/typebox/value";
 
 @Injectable()
 export class ProducerService
@@ -92,18 +95,11 @@ export class ProducerService
       timestamp,
     };
 
-    try {
-      return {
-        key: message.tokenId,
-        value: JSON.stringify(message),
-      };
-    } catch (error: unknown) {
-      this.logger.error(`Error parse message`, {
-        message,
-        error,
-      });
+    Value.Parse(TokenPriceUpdateMessage, message);
 
-      return null;
-    }
+    return {
+      key: message.tokenId,
+      value: JSON.stringify(message),
+    };
   }
 }

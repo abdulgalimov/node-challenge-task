@@ -1,6 +1,7 @@
 import { type Static } from "@sinclair/typebox";
 import {
   boolean,
+  index,
   integer,
   pgTable,
   smallint,
@@ -27,6 +28,7 @@ export const tokensTable = pgTable(
     priority: integer("priority").default(0).notNull(),
 
     priceId: varchar("price_id"),
+
     priceUpdateRequired: boolean("price_update_required")
       .notNull()
       .default(true),
@@ -41,7 +43,10 @@ export const tokensTable = pgTable(
 
     ...timestamps(),
   },
-  (table) => [uniqueIndex("address").on(table.address)]
+  (table) => [
+    uniqueIndex("address").on(table.address),
+    index("price_update_required").on(table.priceUpdateRequired),
+  ]
 );
 
 export const tokensTableRelations = relations(tokensTable, ({ one }) => ({

@@ -1,4 +1,4 @@
-export type NewPriceResponse = {
+export type ReadPriceResponse = {
   price: bigint;
   author: string;
 };

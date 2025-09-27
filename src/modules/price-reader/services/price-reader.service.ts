@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { NewPriceResponse } from "../types";
+import { ReadPriceResponse } from "../types";
 
 @Injectable()
 export class PriceReaderService {
-  async getTokenPrice(): Promise<NewPriceResponse> {
+  async getTokenPrice(): Promise<ReadPriceResponse> {
     // Simulate API call delay
     await new Promise<void>((resolve) => {
       setTimeout(() => {

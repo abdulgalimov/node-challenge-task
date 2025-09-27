@@ -36,10 +36,12 @@ export class TokenService {
     return result[0] ? +result[0].count : 0;
   }
 
-  public async priceUpdateRequireAll() {
-    await this.db.update(tokens.tokensTable).set({
+  public async priceUpdateRequireAll(): Promise<number> {
+    const result = await this.db.update(tokens.tokensTable).set({
       priceUpdateRequired: true,
     });
+
+    return result.rowCount || 0;
   }
 
   public async priceUpdated(tx: Transaction, id: string) {

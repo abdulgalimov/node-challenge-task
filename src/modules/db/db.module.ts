@@ -2,7 +2,6 @@ import { Global, Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 import { DB_CLIENT } from "./constants";
-import { DbConfig } from "../../types";
 import {
   ChainService,
   DbHealthService,
@@ -12,6 +11,7 @@ import {
   TransactionsService,
 } from "./services";
 import { createDbClient } from "./create-client";
+import { DbConfig } from "../config";
 
 @Module({
   providers: [

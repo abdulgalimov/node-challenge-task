@@ -7,8 +7,8 @@ import {
   TokenService,
   TransactionsService,
   Transaction,
+  TokenSelect,
 } from "../../db";
-import { Token } from "../../../types";
 import { CommonLogger, Task } from "../../../utils";
 import { PriceReaderService } from "../../price-reader/services";
 
@@ -16,7 +16,7 @@ import { PriceReaderService } from "../../price-reader/services";
 export class UpdateService implements OnApplicationShutdown {
   private readonly logger = new CommonLogger(UpdateService.name);
 
-  private activeTask: Task | null = null;
+  private readonly task: Task = new Task();
 
   private readonly maxLoadLimit = 1000;
 
@@ -29,22 +29,22 @@ export class UpdateService implements OnApplicationShutdown {
   ) {}
 
   public async onApplicationShutdown() {
-    if (this.activeTask) {
-      await this.activeTask.readyPromise;
+    if (this.task.isActive()) {
+      await this.task.readyPromise();
     }
   }
 
   @Cron(CronExpression.EVERY_5_SECONDS)
   public async updateRequire(): Promise<void> {
-    if (this.activeTask) {
+    if (this.task.isActive()) {
       return;
     }
-    this.activeTask = new Task();
+
+    this.task.create();
 
     await this.updatePrices();
 
-    this.activeTask.resolve();
-    this.activeTask = null;
+    this.task.resolve();
   }
 
   public async updatePrices(): Promise<void> {
@@ -76,7 +76,7 @@ export class UpdateService implements OnApplicationShutdown {
 
   private async updateTokenPriceSafe(
     tx: Transaction,
-    token: Token
+    token: TokenSelect
   ): Promise<TokenPriceUpdateMessageCreate | null> {
     try {
       return await this.updateTokenPrice(tx, token);
@@ -93,7 +93,7 @@ export class UpdateService implements OnApplicationShutdown {
 
   private async updateTokenPrice(
     tx: Transaction,
-    token: Token
+    token: TokenSelect
   ): Promise<TokenPriceUpdateMessageCreate | null> {
     const oldPrice = token.priceId
       ? await this.priceService.getById(token.priceId)

@@ -1,0 +1,1 @@
+CREATE INDEX "price_update_required" ON "tokens" USING btree ("price_update_required");
