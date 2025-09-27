@@ -22,18 +22,18 @@ export class TokenService {
     return result[0] ? +result[0].count : 0;
   }
 
-  public async getPriceUpdateRequiredCount(): Promise<number> {
+  public async waitingPriceUpdateCount(): Promise<number> {
     const result = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(tokens.tokensTable)
-      .where(eq(tokens.tokensTable.priceUpdateRequired, true));
+      .where(eq(tokens.tokensTable.waitPriceUpdate, true));
 
     return result[0] ? +result[0].count : 0;
   }
 
-  public async priceUpdateRequireAll(): Promise<number> {
+  public async waitPriceUpdateAll(): Promise<number> {
     const result = await this.db.update(tokens.tokensTable).set({
-      priceUpdateRequired: true,
+      waitPriceUpdate: true,
     });
 
     return result.rowCount || 0;
@@ -43,7 +43,7 @@ export class TokenService {
     await tx
       .update(tokens.tokensTable)
       .set({
-        priceUpdateRequired: false,
+        waitPriceUpdate: false,
       })
       .where(eq(tokens.tokensTable.id, id));
   }

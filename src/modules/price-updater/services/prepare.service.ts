@@ -17,19 +17,19 @@ export class PrepareService {
       return;
     }
 
-    const updateRequiredCount =
-      await this.tokenService.getPriceUpdateRequiredCount();
+    const waitingUpdateCount =
+      await this.tokenService.waitingPriceUpdateCount();
 
-    if (updateRequiredCount > 0) {
+    if (waitingUpdateCount > 0) {
       return;
     }
 
     this.logger.log("Start preparing for update");
 
-    const requiredCount = await this.tokenService.priceUpdateRequireAll();
+    const waitingCount = await this.tokenService.waitPriceUpdateAll();
 
     this.logger.log("Prepare for update", {
-      requiredCount,
+      waitingCount,
     });
 
     this.task.resolve();

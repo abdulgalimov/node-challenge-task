@@ -81,7 +81,8 @@ export class UpdateService implements OnApplicationShutdown {
     try {
       return await this.updateTokenPrice(tx, token);
     } catch (error: unknown) {
-      this.logger.error(`Error updating price for token ${token.id}`, {
+      this.logger.error(`Error updating price for token`, {
+        token,
         error,
       });
 
@@ -112,12 +113,6 @@ export class UpdateService implements OnApplicationShutdown {
       token.id,
       newPriceResponse.price,
       newPriceResponse.author
-    );
-
-    this.logger.log(
-      `Updated price for ${token.id}: ${String(oldPriceValue)} -> ${
-        newPriceResponse.price
-      }`
     );
 
     return {

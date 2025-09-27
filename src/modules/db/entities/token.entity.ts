@@ -29,9 +29,7 @@ export const tokensTable = pgTable(
 
     priceId: varchar("price_id"),
 
-    priceUpdateRequired: boolean("price_update_required")
-      .notNull()
-      .default(true),
+    waitPriceUpdate: boolean("wait_price_update").notNull().default(true),
 
     chainId: varchar("chain_id")
       .references(() => chainsTable.id, { onDelete: "cascade" })
@@ -45,7 +43,7 @@ export const tokensTable = pgTable(
   },
   (table) => [
     uniqueIndex("address").on(table.address),
-    index("price_update_required").on(table.priceUpdateRequired),
+    index("wait_price_update").on(table.waitPriceUpdate),
   ]
 );
 
