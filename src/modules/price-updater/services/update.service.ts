@@ -48,6 +48,7 @@ export class UpdateService implements OnApplicationShutdown {
   }
 
   public async updatePrices(): Promise<void> {
+    this.logger.log("Start update prices");
     const updatedCount = await this.transactionsService.create(async (tx) => {
       const tokens = await this.tokenService.getWaitUpdate(
         tx,
@@ -67,6 +68,14 @@ export class UpdateService implements OnApplicationShutdown {
       await this.kafkaProducer.sendBatch(responsesFiltered);
 
       return tokens.length;
+    });
+
+    const totalTokensCount = await this.tokenService.count();
+    const updatedPriceCount = await this.tokenService.updatedPriceCount();
+
+    this.logger.log("Update prices complete", {
+      updatedPriceCount,
+      totalTokensCount,
     });
 
     if (updatedCount > 0) {

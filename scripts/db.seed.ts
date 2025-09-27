@@ -160,7 +160,7 @@ async function seedManyMore() {
     const tokensInsert: TokenInsert[] = [];
     const count = await tokenService.count();
 
-    for (let i = 0; i < 100_000; i += 1) {
+    for (let i = 0; i < 1000; i += 1) {
       const index = count + i + 1;
 
       tokensInsert.push({

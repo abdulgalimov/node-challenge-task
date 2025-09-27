@@ -32,6 +32,15 @@ export class TokenService {
     return result[0] ? +result[0].count : 0;
   }
 
+  public async updatedPriceCount(): Promise<number> {
+    const result = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(tokens.tokensTable)
+      .where(eq(tokens.tokensTable.waitPriceUpdate, false));
+
+    return result[0] ? +result[0].count : 0;
+  }
+
   public async waitPriceUpdateAll(): Promise<number> {
     const result = await this.db.update(tokens.tokensTable).set({
       waitPriceUpdate: true,

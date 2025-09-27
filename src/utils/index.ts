@@ -3,3 +3,4 @@ export * from "./uuid";
 export * from "./logger";
 export * from "./swagger";
 export * from "./nullable";
+export * from "./json-bigint";

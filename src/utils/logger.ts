@@ -1,11 +1,43 @@
 import * as winston from "winston";
 import type * as Transport from "winston-transport";
+import LokiTransport from "winston-loki";
+
+import { loadLogConfig } from "../modules/config";
+import { JSONBigIntStringify } from "./json-bigint";
+
+const logConfig = loadLogConfig();
+
+function createLokiTransport() {
+  const { lokiUrl, level } = logConfig;
+
+  if (!lokiUrl) {
+    throw new Error("Loki config does not exist!");
+  }
+
+  return new LokiTransport({
+    host: lokiUrl,
+    labels: { app: "infobot" },
+    json: true,
+    interval: 5,
+    batching: true,
+    level,
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.errors({ stack: true }),
+      winston.format.json()
+    ),
+  });
+}
 
 export class CommonLogger {
   private logger: winston.Logger;
 
   public constructor(name?: string) {
     const transports: Transport[] = [];
+
+    if (logConfig.lokiUrl) {
+      transports.push(createLokiTransport());
+    }
 
     transports.push(
       new winston.transports.Console({
@@ -15,7 +47,7 @@ export class CommonLogger {
             const { timestamp, level, service, message, ...otherData } = info;
             const otherStr =
               Object.keys(otherData).length > 0
-                ? JSON.stringify(otherData, null, 2)
+                ? JSONBigIntStringify(otherData, 2)
                 : "";
 
             const timestampStr = String(timestamp);
@@ -29,7 +61,7 @@ export class CommonLogger {
     );
 
     this.logger = winston.createLogger({
-      level: "warn",
+      level: logConfig.level,
       defaultMeta: { service: name ?? "" },
       transports,
     });

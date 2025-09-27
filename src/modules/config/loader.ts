@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { AppConfig, DbConfig, KafkaConfig } from "./types";
 import { Value } from "@sinclair/typebox/value";
+
+import { AppConfig, DbConfig, KafkaConfig, LogConfig } from "./types";
 
 function getNumber<
   D extends number | null,
@@ -37,10 +38,18 @@ export function loadDbConfig(): DbConfig {
   } satisfies DbConfig);
 }
 
+export function loadLogConfig(): LogConfig {
+  return Value.Parse(LogConfig, {
+    level: process.env.LOG_LEVEL!,
+    lokiUrl: process.env.LOG_LOKI_URL,
+  } satisfies LogConfig);
+}
+
 export function loadConfig(): AppConfig {
   return Value.Parse(AppConfig, {
     port: getNumber("PORT", 3000),
     kafka: loadKafkaConfig(),
     db: loadDbConfig(),
+    log: loadLogConfig(),
   } satisfies AppConfig);
 }
