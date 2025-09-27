@@ -7,6 +7,7 @@ import * as tokens from "../entities/token.entity";
 import { DB_CLIENT } from "../constants";
 import { TokenInsert, TokenSelect } from "../entities";
 import { Transaction } from "../types";
+import { WaitUpdateSelect } from "../entities/token.entity";
 
 @Injectable()
 export class TokenService {
@@ -48,15 +49,15 @@ export class TokenService {
       .where(eq(tokens.tokensTable.id, id));
   }
 
-  public async getUpdateRequired(
+  public async getWaitUpdate(
     tx: Transaction,
     limit: number
-  ): Promise<TokenSelect[]> {
+  ): Promise<WaitUpdateSelect[]> {
     const { rows } = await tx.execute<{ id: string }>(
-      sql`SELECT id FROM tokens WHERE wait_price_update = true FOR UPDATE SKIP LOCKED LIMIT ${limit};`
+      sql`SELECT id,price_id as "priceId",symbol FROM tokens WHERE wait_price_update = true FOR UPDATE SKIP LOCKED LIMIT ${limit};`
     );
 
-    return Promise.all(rows.map((row) => this.getByIdSafe(row.id)));
+    return rows.map((row) => Value.Parse(WaitUpdateSelect, row));
   }
 
   public async getById(id: string): Promise<TokenSelect | null> {
@@ -81,10 +82,6 @@ export class TokenService {
     }
 
     return result;
-  }
-
-  public async getAll(): Promise<TokenSelect[]> {
-    return await this.db.select().from(tokens.tokensTable).execute();
   }
 
   public async createList(dataList: TokenInsert[]) {

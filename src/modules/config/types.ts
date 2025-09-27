@@ -4,6 +4,13 @@ export const KafkaConfig = Type.Object({
   clientId: Type.String(),
   brokers: Type.Array(Type.String()),
   topicName: Type.String(),
+  retry: Type.Object({
+    maxRetryTime: Type.Number(),
+    initialRetryTime: Type.Number(),
+    factor: Type.Number(),
+    multiplier: Type.Number(),
+    retries: Type.Number(),
+  }),
 });
 
 export type KafkaConfig = Static<typeof KafkaConfig>;

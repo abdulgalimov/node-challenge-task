@@ -5,9 +5,9 @@ import { ProducerService, TokenPriceUpdateMessageCreate } from "../../kafka";
 import {
   PriceService,
   TokenService,
-  TransactionsService,
   Transaction,
-  TokenSelect,
+  TransactionsService,
+  WaitUpdateSelect,
 } from "../../db";
 import { CommonLogger, Task } from "../../../utils";
 import { PriceReaderService } from "../../price-reader/services";
@@ -49,7 +49,7 @@ export class UpdateService implements OnApplicationShutdown {
 
   public async updatePrices(): Promise<void> {
     const updatedCount = await this.transactionsService.create(async (tx) => {
-      const tokens = await this.tokenService.getUpdateRequired(
+      const tokens = await this.tokenService.getWaitUpdate(
         tx,
         this.maxLoadLimit
       );
@@ -76,7 +76,7 @@ export class UpdateService implements OnApplicationShutdown {
 
   private async updateTokenPriceSafe(
     tx: Transaction,
-    token: TokenSelect
+    token: WaitUpdateSelect
   ): Promise<TokenPriceUpdateMessageCreate | null> {
     try {
       return await this.updateTokenPrice(tx, token);
@@ -94,7 +94,7 @@ export class UpdateService implements OnApplicationShutdown {
 
   private async updateTokenPrice(
     tx: Transaction,
-    token: TokenSelect
+    token: WaitUpdateSelect
   ): Promise<TokenPriceUpdateMessageCreate | null> {
     const oldPrice = token.priceId
       ? await this.priceService.getById(token.priceId)

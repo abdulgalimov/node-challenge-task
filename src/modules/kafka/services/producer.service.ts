@@ -27,11 +27,12 @@ export class ProducerService
 
   constructor(@Inject(ConfigService) configService: ConfigService) {
     const kafkaConfig = configService.getOrThrow<KafkaConfig>("kafka");
-    const { clientId, brokers, topicName } = kafkaConfig;
+    const { clientId, brokers, topicName, retry } = kafkaConfig;
 
     const kafka = new Kafka({
       clientId,
       brokers,
+      retry,
     });
 
     this.producer = kafka.producer();

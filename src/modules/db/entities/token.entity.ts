@@ -1,4 +1,4 @@
-import { type Static } from "@sinclair/typebox";
+import { type Static, Type } from "@sinclair/typebox";
 import {
   boolean,
   index,
@@ -65,3 +65,11 @@ export type TokenInsert = Static<typeof TokenInsert>;
 export const TokenSelect = createSelectSchema(tokensTable);
 
 export type TokenSelect = Static<typeof TokenSelect>;
+
+export const WaitUpdateSelect = Type.Pick(TokenSelect, [
+  "id",
+  "priceId",
+  "symbol",
+]);
+
+export type WaitUpdateSelect = Static<typeof WaitUpdateSelect>;

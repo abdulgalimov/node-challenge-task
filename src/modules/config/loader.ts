@@ -2,6 +2,17 @@
 import { AppConfig, DbConfig, KafkaConfig } from "./types";
 import { Value } from "@sinclair/typebox/value";
 
+function getNumber<
+  D extends number | null,
+  R = D extends number ? number : number | null
+>(key: string, defaultValue: D): R {
+  if (key in process.env) {
+    return parseFloat(process.env[key]!) as R;
+  }
+
+  return (defaultValue !== null ? defaultValue : null) as R;
+}
+
 export function loadKafkaConfig(): KafkaConfig {
   return Value.Parse(KafkaConfig, {
     clientId: process.env.KAFKA_CLIENT_ID!,
@@ -9,6 +20,14 @@ export function loadKafkaConfig(): KafkaConfig {
       ? process.env.KAFKA_BROKERS.split(",")
       : [],
     topicName: process.env.KAFKA_TOPIC_NAME!,
+
+    retry: {
+      maxRetryTime: getNumber("KAFKA_MAX_RETRY_TIME", 30000),
+      initialRetryTime: getNumber("KAFKA_INITIAL_RETRY_TIME", 300),
+      factor: getNumber("KAFKA_INITIAL_RETRY_TIME", 0.2),
+      multiplier: getNumber("KAFKA_INITIAL_RETRY_TIME", 2),
+      retries: getNumber("KAFKA_RETRIES", 5),
+    },
   } satisfies KafkaConfig);
 }
 
@@ -20,7 +39,7 @@ export function loadDbConfig(): DbConfig {
 
 export function loadConfig(): AppConfig {
   return Value.Parse(AppConfig, {
-    port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+    port: getNumber("PORT", 3000),
     kafka: loadKafkaConfig(),
     db: loadDbConfig(),
   } satisfies AppConfig);
