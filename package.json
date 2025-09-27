@@ -30,10 +30,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/static": "^8.2.0",
     "@nestjs/common": "^11.1.6",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.6",
-    "@nestjs/platform-express": "^11.1.6",
+    "@nestjs/platform-fastify": "^11.1.6",
     "@nestjs/schedule": "^6.0.1",
     "@nestjs/swagger": "^11.2.0",
     "@sinclair/typebox": "^0.34.41",
